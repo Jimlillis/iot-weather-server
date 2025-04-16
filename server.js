@@ -27,19 +27,19 @@ app.post('/data', async (req, res) => {
 
   try {
     await client.query(sql, values);
-    res.send('✅ Data saved successfully');
+    res.send('Data saved successfully');
   } catch (err) {
-    console.error('❌ Error saving data:', err);
+    console.error('Error saving data:', err);
     res.status(500).send('Error saving data');
   }
 });
 
 app.get('/data', async (req, res) => {
   try {
-    const result = await client.query('SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 50');
+    const result = await client.query('SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 50 !!');
     res.json(result.rows);
   } catch (err) {
-    console.error('❌ Error retrieving data:', err);
+    console.error('Error retrieving data:', err);
     res.status(500).send('Error retrieving data');
   }
 });
@@ -53,7 +53,7 @@ app.get('/', (req, res) => {
 async function init() {
   try {
     await client.connect();
-    console.log('✅ Connected to PostgreSQL');
+    console.log('Connected to PostgreSQL !');
 
     await client.query(`
       CREATE TABLE IF NOT EXISTS measurements (
@@ -65,15 +65,15 @@ async function init() {
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log('✅ Table checked/created');
+    console.log('Table checked/created');
 
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
   } catch (err) {
-    console.error('❌ Initialization error:', err);
+    console.error('Initialization error:', err);
   }
 }
 
-init(); // 👉 Εκκίνηση της async init
+init(); // Εκκίνηση της async init

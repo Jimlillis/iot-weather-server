@@ -34,7 +34,7 @@
     <script>
         async function fetchData() {
             try {
-                const response = await fetch('https://weather-monitor-zjxi.onrender.com/data');
+                const response = await fetch('https://iot-weather-server.onrender.com/data');
                 const data = await response.json();
                 
                 const tableBody = document.getElementById("data-table");

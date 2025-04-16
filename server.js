@@ -22,15 +22,29 @@ const client = new Client({
 client.connect()
   .then(() => {
     console.log('Connected to PostgreSQL Database');
+
+    // Δημιουργία πίνακα αν δεν υπάρχει
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS measurements (
+        id SERIAL PRIMARY KEY,
+        temperature FLOAT,
+        humidity FLOAT,
+        pressure FLOAT,
+        air_quality FLOAT,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+  })
+  .then(() => {
+    console.log('Table measurements created or already exists');
   })
   .catch((err) => {
     console.error('Database connection failed', err.stack);
   });
 
-// API για αποθήκευση δεδομένων
+// POST για αποθήκευση
 app.post('/data', (req, res) => {
   const { temperature, humidity, pressure, air_quality } = req.body;
-  
   const sql = 'INSERT INTO measurements (temperature, humidity, pressure, air_quality) VALUES ($1, $2, $3, $4)';
   const values = [temperature, humidity, pressure, air_quality];
 
@@ -43,7 +57,7 @@ app.post('/data', (req, res) => {
   });
 });
 
-// API για ανάκτηση δεδομένων
+// GET για ανάκτηση δεδομένων
 app.get('/data', (req, res) => {
   const sql = 'SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 50';
 
@@ -52,7 +66,7 @@ app.get('/data', (req, res) => {
       console.error('Error retrieving data:', err);
       return res.status(500).send('Error retrieving data');
     }
-    res.json(result.rows); // Χρησιμοποιούμε `result.rows` για τα αποτελέσματα
+    res.json(result.rows); // `result.rows` για τα αποτελέσματα
   });
 });
 

@@ -8,6 +8,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+console.log("Loaded DB_HOST:", process.env.DB_HOST);
+
 const client = new Client({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,

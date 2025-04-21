@@ -52,6 +52,7 @@ app.get('/', (req, res) => {
 // 🧠 Σωστό async init: σύνδεση + δημιουργία πίνακα + εκκίνηση server
 async function init() {
   try {
+    console.log("Connecting to host:", process.env.DB_HOST);
     await client.connect();
     console.log('Connected to PostgreSQL !');
 

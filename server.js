@@ -38,7 +38,7 @@ app.post('/data', async (req, res) => {
 
 app.get('/data', async (req, res) => {
   try {
-    const result = await client.query('SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 50 !!');
+    const result = await client.query('SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 50');
     res.json(result.rows);
   } catch (err) {
     console.error('Error retrieving data:', err);

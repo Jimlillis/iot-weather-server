@@ -13,12 +13,33 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
+    }
+
+    .top-bar {
+      width: 100%;
+      background-color: #0072ff;
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 20px;
+    }
+
+    .top-bar button {
+      background-color: white;
+      color: #0072ff;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    .top-bar button:hover {
+      background-color: #e0e0e0;
     }
 
     .container {
       background-color: white;
-      margin-top: 60px;
+      margin: 40px auto;
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
@@ -32,6 +53,14 @@
       margin-bottom: 30px;
     }
 
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
     button {
       padding: 12px 24px;
       background-color: #0072ff;
@@ -40,7 +69,6 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin-bottom: 20px;
       transition: background-color 0.3s ease;
     }
 
@@ -78,6 +106,11 @@
         font-size: 20px;
       }
 
+      .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
       button {
         width: 100%;
       }
@@ -85,11 +118,14 @@
   </style>
 </head>
 <body>
+  <div class="top-bar">
+    <button onclick="logout()">Αποσύνδεση</button>
+  </div>
+
   <div class="container">
     <h1>Μετρήσεις Ατμοσφαιρικών Συνθηκών</h1>
-    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;"></div>
+    <div class="action-buttons">
       <button onclick="fetchData()">Ανανέωση Δεδομένων</button>
-      <button onclick="logout()">Αποσύνδεση</button>
     </div>
     <table>
       <thead>
@@ -144,4 +180,5 @@
   </script>
 </body>
 </html>
+
 

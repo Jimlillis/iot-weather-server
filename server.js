@@ -79,6 +79,12 @@ app.get('/data', async (req, res) => {
   }
 });
 
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.sendStatus(200);
+  });
+});
+
 async function init() {
   try {
     console.log("Connecting to host:", process.env.DB_HOST);

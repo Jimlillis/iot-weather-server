@@ -55,7 +55,7 @@ app.get('/', (req, res) => {
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if ((username === 'alexandroskosmidis' && password === '12345')|| (username == 'jim_lillis_junior' && password == 'airdripler')) {
-    req.session.loggedIn = true;
+    login_first = true;
     res.sendStatus(200);
   } else {
     res.sendStatus(401);
@@ -63,7 +63,7 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/data', async (req, res) => {
-  if (!req.session.loggedIn) {
+  if (!login_first) {
     return res.status(401).json({ message: 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login πρώτα.' });
   } else{
   try {
@@ -81,6 +81,7 @@ async function init() {
     console.log("Connecting to host:", process.env.DB_HOST);
     await client.connect();
     console.log('Connected to PostgreSQL !');
+    let login_first = false;
 
     await client.query(`
       CREATE TABLE IF NOT EXISTS measurements (

@@ -11,10 +11,13 @@ app.use(express.json());
 
 //use session for checking users of the app
 app.use(session({
-  secret: 'your-secret-key', 
+  secret: 'your-secret-key', // βάλε ένα τυχαίο κρυφό string εδώ
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false } 
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // βάλε true μόνο αν χρησιμοποιείς https
+    maxAge: 24 * 60 * 60 * 1000 // 1 μέρα
+  }
 }));
 
 console.log("Loaded DB_HOST:", process.env.DB_HOST);
@@ -52,7 +55,7 @@ app.get('/', (req, res) => {
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if ((username === 'alexandroskosmidis' && password === '12345')|| (username == 'jim_lillis_junior' && password == 'airdripler')) {
-    req.session.authenticated = true;
+    req.session.loggedIn = true;
     res.sendStatus(200);
   } else {
     res.sendStatus(401);
@@ -60,7 +63,7 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/data', async (req, res) => {
-  if (!req.session.authenticated) {
+  if (!req.session.loggedIn) {
     return res.status(401).json({ message: 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login πρώτα.' });
   } else{
   try {

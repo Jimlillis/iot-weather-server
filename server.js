@@ -21,7 +21,6 @@ const client = new Client({
   }
 });
 
-// API routes (πιο κάτω είναι το listen)
 app.post('/data', async (req, res) => {
   const { temperature, humidity, pressure, air_quality } = req.body;
   const sql = 'INSERT INTO measurements (temperature, humidity, pressure, air_quality) VALUES ($1, $2, $3, $4)';
@@ -33,6 +32,19 @@ app.post('/data', async (req, res) => {
   } catch (err) {
     console.error('Error saving data:', err);
     res.status(500).send('Error saving data');
+  }
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  if ((username === 'alexandroskosmidis' && password === '12345')|| (username == 'jim_lillis_junior' && password == 'airdripler')) {
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(401);
   }
 });
 

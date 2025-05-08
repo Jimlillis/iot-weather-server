@@ -1,62 +1,134 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>live Μετρήσεις Ατμοσφαιρικών Συνθηκών</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
-        table { width: 90%; margin: auto; border-collapse: collapse; }
-        th, td { padding: 10px; border: 1px solid #ddd; }
-        th { background-color: #4CAF50; color: white; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Home App - Μετρήσεις</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      background-color: white;
+      margin-top: 60px;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 1000px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    button {
+      padding: 12px 24px;
+      background-color: #0072ff;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #005ed8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #0072ff;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    @media (max-width: 600px) {
+      th, td {
+        font-size: 12px;
+        padding: 8px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-
+  <div class="container">
     <h1>Μετρήσεις Ατμοσφαιρικών Συνθηκών</h1>
     <button onclick="fetchData()">Ανανέωση Δεδομένων</button>
     <table>
-        <thead>
-            <tr>
-                <th>Θερμοκρασία (°C)</th>
-                <th>Υγρασία (%)</th>
-                <th>Πίεση (hPa)</th>
-                <th>Ποιότητα Αέρα</th>
-                <th>Χρόνος της μέτρησης</th>
-            </tr>
-        </thead>
-        <tbody id="data-table">
-            <!-- Τα δεδομένα θα εμφανίζονται εδώ -->
-        </tbody>
+      <thead>
+        <tr>
+          <th>Θερμοκρασία (°C)</th>
+          <th>Υγρασία (%)</th>
+          <th>Πίεση (hPa)</th>
+          <th>Ποιότητα Αέρα</th>
+          <th>Χρόνος</th>
+        </tr>
+      </thead>
+      <tbody id="data-table">
+        <!-- Τα δεδομένα θα εμφανιστούν εδώ -->
+      </tbody>
     </table>
+  </div>
 
-    <script>
-        async function fetchData() {
-            try {
-                const response = await fetch('https://iot-weather-server.onrender.com/data');
-                const data = await response.json();
-                
-                const tableBody = document.getElementById("data-table");
-                tableBody.innerHTML = "";
+  <script>
+    async function fetchData() {
+      try {
+        const response = await fetch('https://iot-weather-server.onrender.com/data');
+        const data = await response.json();
+        const tableBody = document.getElementById("data-table");
+        tableBody.innerHTML = "";
 
-                data.forEach(entry => {
-                    const row = `<tr>
-                        <td>${entry.temperature} °C</td>
-                        <td>${entry.humidity} %</td>
-                        <td>${entry.pressure} hPa</td>
-                        <td>${entry.air_quality}</td>
-                        <td>${new Date(entry.timestamp).toLocaleString()}</td>
-                    </tr>`;
-                    tableBody.innerHTML += row;
-                });
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        }
+        data.forEach(entry => {
+          const row = `<tr>
+              <td>${entry.temperature} °C</td>
+              <td>${entry.humidity} %</td>
+              <td>${entry.pressure} hPa</td>
+              <td>${entry.air_quality}</td>
+              <td>${new Date(entry.timestamp).toLocaleString()}</td>
+          </tr>`;
+          tableBody.innerHTML += row;
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
 
-        fetchData(); // Αυτόματη φόρτωση δεδομένων μόλις ανοίξει η σελίδα
-    </script>
-
+    fetchData(); // Αυτόματη φόρτωση δεδομένων
+  </script>
 </body>
 </html>
+

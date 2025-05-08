@@ -5,6 +5,10 @@ const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
 
+const app = express();
+app.use(cors());
+app.use(express.json());
+
 //use session for checking users of the app
 app.use(session({
   secret: 'your-secret-key', 
@@ -12,12 +16,6 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false } 
 }));
-
-
-
-const app = express();
-app.use(cors());
-app.use(express.json());
 
 console.log("Loaded DB_HOST:", process.env.DB_HOST);
 

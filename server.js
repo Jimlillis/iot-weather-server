@@ -6,22 +6,9 @@ const path = require('path');
 const session = require('express-session');
 
 const app = express();
-app.use(cors({
-  origin: 'https://iot-weather-server.onrender.com', // ή http://localhost:xxxx για local
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
-//use session for checking users of the app
-app.use(session({
-  secret: 'your-secret-key', // βάλε ένα τυχαίο κρυφό string εδώ
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false, // βάλε true μόνο αν χρησιμοποιείς https
-    maxAge: 24 * 60 * 60 * 1000 // 1 μέρα
-  }
-}));
 
 console.log("Loaded DB_HOST:", process.env.DB_HOST);
 

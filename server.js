@@ -6,7 +6,10 @@ const path = require('path');
 const session = require('express-session');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: 'https://iot-weather-server.onrender.com', // ή http://localhost:xxxx για local
+  credentials: true
+}));
 app.use(express.json());
 
 //use session for checking users of the app

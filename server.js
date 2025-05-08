@@ -3,6 +3,17 @@ const express = require('express');
 const { Client } = require('pg');
 const cors = require('cors');
 const path = require('path');
+const session = require('express-session');
+
+//use session for checking users of the app
+app.use(session({
+  secret: 'your-secret-key', 
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } 
+}));
+
+
 
 const app = express();
 app.use(cors());
@@ -35,6 +46,7 @@ app.post('/data', async (req, res) => {
   }
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
@@ -42,6 +54,7 @@ app.get('/', (req, res) => {
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if ((username === 'alexandroskosmidis' && password === '12345')|| (username == 'jim_lillis_junior' && password == 'airdripler')) {
+    req.session.authenticated = true;
     res.sendStatus(200);
   } else {
     res.sendStatus(401);
@@ -49,6 +62,9 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/data', async (req, res) => {
+  if (!req.session.authenticated) {
+    return res.status(401).json({ message: 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login πρώτα.' });
+  } else{
   try {
     const result = await client.query('SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 50');
     res.json(result.rows);
@@ -56,14 +72,9 @@ app.get('/data', async (req, res) => {
     console.error('Error retrieving data:', err);
     res.status(500).send('Error retrieving data');
   }
+  }
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// 🧠 Σωστό async init: σύνδεση + δημιουργία πίνακα + εκκίνηση server
 async function init() {
   try {
     console.log("Connecting to host:", process.env.DB_HOST);
@@ -91,4 +102,4 @@ async function init() {
   }
 }
 
-init(); // Εκκίνηση της async init
+init();

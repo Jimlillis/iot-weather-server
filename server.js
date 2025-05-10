@@ -6,6 +6,16 @@ const path = require('path');
 const session = require('express-session');
 
 const app = express();
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'mysecret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    sameSite: 'none',
+    secure: true
+  }
+}));
+
 app.use(cors());
 app.use(express.json());
 

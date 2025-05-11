@@ -17,7 +17,7 @@ app.use(session({
 }));
 
 app.use(cors({
-  origin: 'https://iot-weather-server.onrender.com',
+  origin: true,
   credentials: true
 }));
 app.use(express.json());

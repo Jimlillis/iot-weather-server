@@ -81,6 +81,7 @@ app.get('/data', async (req, res) => {
   try {
     const result = await client.query('SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 50');
     res.json(result.rows);
+    console.log("Session at /data:", req.session);
   } catch (err) {
     console.error('Error retrieving data:', err);
     res.status(500).send('Error retrieving data');

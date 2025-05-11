@@ -3,18 +3,18 @@ const express = require('express');
 const { Client } = require('pg');
 const cors = require('cors');
 const path = require('path');
-const session = require('express-session');
-
 const app = express();
-
+const session = require('express-session');
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'mysecret',
   resave: false,
   saveUninitialized: false,
   cookie: {
+    httpOnly: true,
+    secure: true,
     sameSite: 'none',
-    secure: true
+    maxAge: 3600000 // 1 ώρα
   }
 }));
 

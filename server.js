@@ -6,7 +6,7 @@ const path = require('path');
 const session = require('express-session');
 // const MemoryStore = require('memorystore')(session);
 
-// const app = express();
+const app = express();
 // app.use(session({
 //   secret: process.env.SESSION_SECRET || 'mysecret',
 //   resave: false,

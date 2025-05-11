@@ -4,21 +4,31 @@ const { Client } = require('pg');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
-const MemoryStore = require('memorystore')(session);
+// const MemoryStore = require('memorystore')(session);
 
-const app = express();
+// const app = express();
+// app.use(session({
+//   secret: process.env.SESSION_SECRET || 'mysecret',
+//   resave: false,
+//   saveUninitialized: false,
+//   store: new MemoryStore({
+//     checkPeriod: 86400000 // καθαρισμός κάθε 24 ώρες
+//   }),
+//   cookie: {
+//     httpOnly: true,
+//     secure: true,
+//     sameSite: 'none', // αποθηκεύει sessions
+//     maxAge: 3600000 // 1 ώρα
+//   }
+// }));
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'mysecret',
   resave: false,
   saveUninitialized: false,
-  store: new MemoryStore({
-    checkPeriod: 86400000 // καθαρισμός κάθε 24 ώρες
-  }),
   cookie: {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none', // αποθηκεύει sessions
-    maxAge: 3600000 // 1 ώρα
+    sameSite: 'none',
+    secure: true
   }
 }));
 

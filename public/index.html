@@ -144,50 +144,64 @@
   </div>
 
   <script>
-    async function fetchData() {
-      try {
-        const response = await fetch('https://iot-weather-server.onrender.com/data', {
-          credentials: 'include'
-        });
-        const data = await response.json();
-        const tableBody = document.getElementById("data-table");
-        tableBody.innerHTML = "";
-  
-        if (data.length === 0) {
-          tableBody.innerHTML = `
-            <tr>
-              <td colspan="5">Δεν υπάρχουν διαθέσιμα δεδομένα.</td>
-            </tr>`;
-          return;
-        }
-  
-        data.forEach(entry => {
-          const row = `<tr>
-              <td>${entry.temperature} °C</td>
-              <td>${entry.humidity} %</td>
-              <td>${entry.pressure} hPa</td>
-              <td>${entry.air_quality}</td>
-              <td>${new Date(entry.timestamp).toLocaleString()}</td>
-          </tr>`;
-          tableBody.innerHTML += row;
-        });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        const tableBody = document.getElementById("data-table");
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="5">Σφάλμα κατά την ανάκτηση των δεδομένων.</td>
-          </tr>`;
-      }
+async function fetchData() {
+  const tableBody = document.getElementById("data-table");
+  tableBody.innerHTML = ""; // clear πίνακα από προηγούμενα δεδομένα ή μηνύματα
+
+  try {
+    const response = await fetch('https://iot-weather-server.onrender.com/data', {
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error("Σφάλμα HTTP:", response.status, errorMessage);
+
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="5">Σφάλμα: ${response.status === 401 ? 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.' : 'Αποτυχία ανάκτησης δεδομένων.'}</td>
+        </tr>`;
+      return;
     }
-  
-    async function logout() {
-      await fetch('https://iot-weather-server.onrender.com/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
-      window.location.href = "/login.html";
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      console.error("Αναμενόταν array αλλά ήρθε:", data);
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="5">Τα δεδομένα που λήφθηκαν δεν είναι έγκυρα.</td>
+        </tr>`;
+      return;
     }
+
+    if (data.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="5">Δεν υπάρχουν διαθέσιμα δεδομένα.</td>
+        </tr>`;
+      return;
+    }
+
+    data.forEach(entry => {
+      const row = `<tr>
+          <td>${entry.temperature} °C</td>
+          <td>${entry.humidity} %</td>
+          <td>${entry.pressure} hPa</td>
+          <td>${entry.air_quality}</td>
+          <td>${new Date(entry.timestamp).toLocaleString()}</td>
+      </tr>`;
+      tableBody.innerHTML += row;
+    });
+  } catch (error) {
+    console.error("Σφάλμα JavaScript κατά το fetch:", error);
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="5">Σφάλμα κατά την ανάκτηση των δεδομένων.</td>
+      </tr>`;
+  }
+}
+
   
     // fetchData(); // Δεν φορτώνουμε αυτόματα
   </script>

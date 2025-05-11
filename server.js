@@ -3,8 +3,19 @@ const express = require('express');
 const { Client } = require('pg');
 const cors = require('cors');
 const path = require('path');
+const session = require('express-session');
 
 const app = express();
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'mysecret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    sameSite: 'none',
+    secure: true
+  }
+}));
+
 app.use(cors());
 app.use(express.json());
 
@@ -44,6 +55,7 @@ app.get('/', (req, res) => {
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if ((username === 'alexandroskosmidis' && password === '12345')|| (username == 'jim_lillis_junior' && password == 'airdripler')) {
+    req.session.loggedIn = true;
     res.sendStatus(200);
   } else {
     res.sendStatus(401);
@@ -51,6 +63,9 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/data', async (req, res) => {
+  if (!req.session.loggedIn) {
+    return res.status(401).json({ message: 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login πρώτα.' });
+  } else{
   try {
     const result = await client.query('SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 50');
     res.json(result.rows);
@@ -58,13 +73,14 @@ app.get('/data', async (req, res) => {
     console.error('Error retrieving data:', err);
     res.status(500).send('Error retrieving data');
   }
+  }
 });
 
-// app.post('/logout', (req, res) => {
-//   req.session.destroy(() => {
-//     res.sendStatus(200);
-//   });
-// });
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.sendStatus(200);
+  });
+});
 
 async function init() {
   try {

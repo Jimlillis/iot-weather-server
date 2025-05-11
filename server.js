@@ -18,6 +18,8 @@ app.use(session({
   }
 }));
 
+app.set('trust proxy', 1); // εμπιστέψου τον proxy για σωστή διαχείριση secure cookies
+
 app.use(cors({
   origin: 'https://iot-weather-server.onrender.com',
   credentials: true

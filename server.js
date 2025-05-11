@@ -47,10 +47,11 @@ app.post('/data', async (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;

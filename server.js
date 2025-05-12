@@ -42,7 +42,7 @@ const client = new Client({
   }
 });
 
-// 🔐 Middleware για έλεγχο αν έχει γίνει login
+// Middleware για έλεγχο αν έχει γίνει login
 function checkAuth(req, res, next) {
   if (req.session && req.session.loggedIn) {
     next();
@@ -51,7 +51,7 @@ function checkAuth(req, res, next) {
   }
 }
 
-// 📌 Προστατευμένο route για index.html
+// Προστατευμένο route για index.html
 app.get('/index.html', checkAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -70,7 +70,7 @@ app.post('/data', async (req, res) => {
   }
 });
 
-// 🔐 Login route
+// Login route
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if ((username === 'alexandroskosmidis' && password === '12345') ||
@@ -82,7 +82,7 @@ app.post('/login', (req, res) => {
   }
 });
 
-// 🔐 Προστατευμένο data route
+// Προστατευμένο data route
 app.get('/data', async (req, res) => {
   if (!req.session.loggedIn) {
     return res.status(401).json({ message: 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login πρώτα.' });
@@ -97,19 +97,19 @@ app.get('/data', async (req, res) => {
   }
 });
 
-// 🔐 Logout
+// Logout
 app.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.sendStatus(200);
   });
 });
 
-// 🔄 Root: πάει στο login
+// Root: πάει στο login
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// ✅ Στατικά αρχεία (εικόνες, css, js κ.λπ.)
+// Στατικά αρχεία
 app.use(express.static(path.join(__dirname, 'public')));
 
 async function init() {

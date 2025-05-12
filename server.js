@@ -3,8 +3,9 @@ const express = require('express');
 const { Client } = require('pg');
 const cors = require('cors');
 const path = require('path');
-const app = express();
 const session = require('express-session');
+
+const app = express();
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'mysecret',
@@ -18,16 +19,15 @@ app.use(session({
   }
 }));
 
-app.set('trust proxy', 1); // εμπιστέψου τον proxy για σωστή διαχείριση secure cookies
+app.set('trust proxy', 1);
 
 app.use(cors({
   origin: 'https://iot-weather-server.onrender.com',
   credentials: true
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true })); //επιτρέπει στον Express 
-// να διαβάζει τα form bodies, ακόμα κι αν έρθουν με headers εκτός JSON
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 console.log("Loaded DB_HOST:", process.env.DB_HOST);
 
@@ -40,6 +40,20 @@ const client = new Client({
   ssl: {
     rejectUnauthorized: false
   }
+});
+
+// 🔐 Middleware για έλεγχο αν έχει γίνει login
+function checkAuth(req, res, next) {
+  if (req.session && req.session.loggedIn) {
+    next();
+  } else {
+    res.redirect('/login.html');
+  }
+}
+
+// 📌 Προστατευμένο route για index.html
+app.get('/index.html', checkAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.post('/data', async (req, res) => {
@@ -56,15 +70,11 @@ app.post('/data', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-app.use(express.static(path.join(__dirname, 'public')));
-
+// 🔐 Login route
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  if ((username === 'alexandroskosmidis' && password === '12345')|| (username == 'jim_lillis_junior' && password == 'airdripler')) {
+  if ((username === 'alexandroskosmidis' && password === '12345') ||
+      (username === 'jim_lillis_junior' && password === 'airdripler')) {
     req.session.loggedIn = true;
     res.sendStatus(200);
   } else {
@@ -72,10 +82,11 @@ app.post('/login', (req, res) => {
   }
 });
 
+// 🔐 Προστατευμένο data route
 app.get('/data', async (req, res) => {
   if (!req.session.loggedIn) {
     return res.status(401).json({ message: 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login πρώτα.' });
-  } else{
+  }
   try {
     const result = await client.query('SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 50');
     res.json(result.rows);
@@ -84,14 +95,22 @@ app.get('/data', async (req, res) => {
     console.error('Error retrieving data:', err);
     res.status(500).send('Error retrieving data');
   }
-  }
 });
 
+// 🔐 Logout
 app.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.sendStatus(200);
   });
 });
+
+// 🔄 Root: πάει στο login
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// ✅ Στατικά αρχεία (εικόνες, css, js κ.λπ.)
+app.use(express.static(path.join(__dirname, 'public')));
 
 async function init() {
   try {

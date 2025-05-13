@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Smart Home App - Μετρήσεις</title>
   <style>
+    html {
+      zoom: 0.9;
+    }
+
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to right, #00c6ff, #0072ff);
@@ -19,8 +23,9 @@
       width: 100%;
       background-color: #0072ff;
       display: flex;
-      justify-content: flex-end; /* Από δεξιά -> αριστερά */
-      padding: 10px 20px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 40px 10px 20px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       position: sticky;
       top: 0;
@@ -39,6 +44,12 @@
 
     .top-bar button:hover {
       background-color: #e0e0e0;
+    }
+
+    .time-display {
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
     }
 
     .container {
@@ -123,6 +134,7 @@
 </head>
 <body>
   <div class="top-bar">
+    <div class="time-display" id="time-display">--:--:--</div>
     <button onclick="logout()">Αποσύνδεση</button>
   </div>
 
@@ -148,6 +160,24 @@
   </div>
 
   <script>
+    function updateClock() {
+      const now = new Date();
+      const options = {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      };
+      const formatted = now.toLocaleString('el-GR', options);
+      document.getElementById("time-display").textContent = formatted;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
     async function logout() {
       try {
         const res = await fetch('/logout', {
@@ -225,6 +255,7 @@
   </script>
 </body>
 </html>
+
 
 
 

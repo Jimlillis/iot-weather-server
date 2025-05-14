@@ -114,7 +114,7 @@
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
       border: 1px solid rgba(255, 255, 255, 0.9);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
-      height: 520px; /* Καθορισμένο ύψος για όλες τις κάρτες */
+      height: 650px; /* Αυξημένο ύψος για τις κάρτες */
       display: flex;
       flex-direction: column;
     }
@@ -149,6 +149,7 @@
       align-items: flex-end;
       gap: 0.25rem;
       margin-top: 0.5rem;
+      margin-bottom: 1rem; /* Προσθήκη περιθωρίου για καλύτερο διαχωρισμό */
     }
     
     .current-value {
@@ -231,13 +232,14 @@
     
     /* Chart styles */
     .chart-container {
-      height: 230px; /* Αυξημένο ύψος για τα διαγράμματα */
-      margin: 1rem 0;
+      height: 280px; /* Περαιτέρω αυξημένο ύψος για τα διαγράμματα */
+      margin: 1rem 0 1.5rem 0; /* Αυξημένο κάτω περιθώριο */
       background-color: rgba(240, 240, 240, 0.5);
       border-radius: 0.75rem;
       padding: 0.75rem;
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
       flex-grow: 1; /* Επιτρέπει στο chart να πάρει τον διαθέσιμο χώρο */
+      max-height: 280px; /* Περιορίζει το μέγιστο ύψος */
     }
     
     /* Button styles */
@@ -252,7 +254,8 @@
       cursor: pointer;
       transition: filter 0.2s, transform 0.1s;
       box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-      margin-top: 1rem; /* Προσθέτουμε περιθώριο για να μην επικαλύπτεται με το διάγραμμα */
+      margin-top: auto; /* Τοποθετεί το κουμπί στο κάτω μέρος του flex container */
+      margin-bottom: 0.5rem; /* Προσθέτουμε λίγο κάτω περιθώριο */
     }
     
     .control-button:hover {

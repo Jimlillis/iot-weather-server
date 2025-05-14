@@ -1,516 +1,421 @@
-<!DOCTYPE html>
-<html lang="el">
-<head>
+  <!DOCTYPE html>
+  <html lang="el">
+  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Μετρήσεις Ατμοσφαιρικών Συνθηκών</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-    }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+  }
 
-    body {
-      background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
-      color: #333;
-      padding: 2rem 1rem;
-      min-height: 100vh;
-    }
+  body {
+    background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+    color: #333;
+    padding: 2rem 1rem;
+    min-height: 100vh;
+  }
 
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-    }
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
 
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (min-width: 768px) {
     .header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 2rem;
-      background-color: rgba(255, 255, 255, 0.9);
-      padding: 1.5rem;
-      border-radius: 1rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    @media (min-width: 768px) {
-      .header {
         flex-direction: row;
-      }
     }
+  }
 
+  .title {
+    font-size: 1.875rem;
+    font-weight: 600;
+    color: #0066cc;
+    margin-bottom: 0.5rem;
+  }
+
+  @media (min-width: 768px) {
     .title {
-      font-size: 1.875rem;
-      font-weight: 600;
-      color: #0066cc;
-      margin-bottom: 0.5rem;
-    }
-
-    @media (min-width: 768px) {
-      .title {
         margin-bottom: 0;
-      }
     }
+  }
 
-    .live-indicator {
-      display: inline-flex;
-      align-items: center;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: #444;
-    }
+  .live-indicator {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #444;
+  }
 
-    .live-indicator::before {
-      content: "";
-      width: 0.5rem;
-      height: 0.5rem;
-      background-color: #10b981;
-      border-radius: 50%;
-      margin-right: 0.25rem;
-      animation: pulse 2s ease-in-out infinite;
-    }
+  .live-indicator::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: #10b981;
+    border-radius: 50%;
+    margin-right: 0.25rem;
+    animation: pulse 2s ease-in-out infinite;
+  }
 
-    @keyframes pulse {
-      0%, 100% {
+  @keyframes pulse {
+    0%, 100% {
         opacity: 1;
-      }
-      50% {
+    }
+    50% {
         opacity: 0.7;
-      }
     }
+  }
 
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
     .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-
-    @media (min-width: 768px) {
-      .grid {
         grid-template-columns: repeat(2, 1fr);
-      }
     }
+  }
 
-    @media (min-width: 1024px) {
-      .grid {
+  @media (min-width: 1024px) {
+    .grid {
         grid-template-columns: repeat(4, 1fr);
-      }
     }
+  }
 
-    .sensor-card {
-      background-color: rgba(255, 255, 255, 0.95);
-      border-radius: 1rem;
-      padding: 1.25rem;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      height: 800px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+  .sensor-card {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 550px; /* Reduced height */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 
-    .sensor-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    }
+  .sensor-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
 
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid rgba(0, 114, 255, 0.1);
-    }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0, 114, 255, 0.1);
+  }
 
-    .card-title {
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: #0066cc;
-    }
+  .card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0066cc;
+  }
 
-    .card-icon {
-      width: 1.5rem;
-      height: 1.5rem;
-    }
+  .card-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 
-    .value-container {
-      display: flex;
-      align-items: flex-end;
-      gap: 0.25rem;
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-      word-break: break-word;
-    }
+  .value-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    word-break: break-word;
+  }
 
-    .current-value {
-      font-size: 2rem;
-      font-weight: 700;
-    }
+  .current-value {
+    font-size: 2rem;
+    font-weight: 700;
+  }
 
-    .unit {
-      font-size: 1.125rem;
-      color: #666;
-      margin-bottom: 0.25rem;
-      font-weight: 500;
-    }
+  .unit {
+    font-size: 1.125rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+  }
 
-    .carousel {
-      display: flex;
-      align-items: center;
-      margin: 1rem 0;
-      background-color: rgba(240, 240, 240, 0.5);
-      padding: 0.5rem;
-      border-radius: 0.75rem;
-    }
+  .carousel {
+    display: flex;
+    align-items: center;
+    margin: 0.75rem 0; /* Reduced margin */
+    background-color: rgba(240, 240, 240, 0.5);
+    padding: 0.25rem; /* Reduced padding */
+    border-radius: 0.75rem;
+  }
 
-    .carousel-button {
-      background: rgba(255, 255, 255, 0.8);
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      width: 1.75rem;
-      height: 1.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #0066cc;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+  .carousel-button {
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 1.5rem; /* Reduced size */
+    height: 1.5rem; /* Reduced size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0066cc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.8rem; /* Reduced font size */
+  }
 
-    .carousel-button:hover {
-      background-color: #0066cc;
-      color: white;
-    }
+  .carousel-button:hover {
+    background-color: #0066cc;
+    color: white;
+  }
 
-    .carousel-items {
-      flex: 1;
-      overflow: hidden;
-    }
+  .carousel-items {
+    flex: 1;
+    overflow: hidden;
+  }
 
-    .carousel-slider {
-      display: flex;
-      justify-content: space-between;
-      transition: transform 0.3s ease;
-    }
+  .carousel-slider {
+    display: flex;
+    justify-content: space-between;
+    transition: transform 0.3s ease;
+  }
 
-    .carousel-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0 0.25rem;
-      text-align: center;
-    }
+  .carousel-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0.1rem; /* Reduced padding */
+    text-align: center;
+  }
 
-    .carousel-dot {
-      height: 0.5rem;
-      width: 0.5rem;
-      border-radius: 50%;
-      margin-bottom: 0.25rem;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
+  .carousel-dot {
+    height: 0.4rem; /* Reduced size */
+    width: 0.4rem; /* Reduced size */
+    border-radius: 50%;
+    margin-bottom: 0.1rem; /* Reduced margin */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
 
-    .carousel-time {
-      font-size: 0.75rem;
-      color: #666;
-    }
+  .carousel-time {
+    font-size: 0.6rem; /* Reduced font size */
+    color: #666;
+  }
 
-    .carousel-value {
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
+  .carousel-value {
+    font-size: 0.6rem; /* Reduced font size */
+    font-weight: 600;
+  }
 
-    .chart-container {
-      height: 160px;           /* Ήταν 280px */
-      max-height: 160px;       /* Περιορίζει το ύψος */
-      margin: 1rem 0 1rem 0;   /* Μικρότερο κάτω περιθώριο */
-      background-color: rgba(240, 240, 240, 0.5);
-      border-radius: 0.75rem;
-      padding: 0.5rem;         /* Λιγότερο padding */
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-      flex-grow: 1;
-    }
-    
-    /* Button styles */
-    .control-button {
-      display: block;
-      width: 100%;
-      font-weight: 600;
-      color: white;
-      border: none;
-      border-radius: 0.75rem;
-      padding: 0.75rem 0.5rem;
-      cursor: pointer;
-      transition: filter 0.2s, transform 0.1s;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-      margin-top: auto; /* Τοποθετεί το κουμπί στο κάτω μέρος του flex container */
-      margin-bottom: 0.5rem; /* Προσθέτουμε λίγο κάτω περιθώριο */
-    }
-    
-    .control-button:hover {
-      filter: brightness(1.1);
-    }
-    
-    .control-button:active {
-      transform: translateY(2px);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-    }
-    
-    /* Sensor-specific colors */
-    .temperature-color {
-      color: #f97316;
-    }
-    
-    .temperature-bg {
-      background-color: #f97316;
-    }
-    
-    .humidity-color {
-      color: #0ea5e9;
-    }
-    
-    .humidity-bg {
-      background-color: #0ea5e9;
-    }
-    
-    .pressure-color {
-      color: #8b5cf6;
-    }
-    
-    .pressure-bg {
-      background-color: #8b5cf6;
-    }
-    
-    .air-quality-color {
-      color: #10b981;
-    }
-    
-    .air-quality-bg {
-      background-color: #10b981;
-    }
+  .chart-container {
+    height: 120px; /* Further reduced height */
+    max-height: 120px; /* Limits the height */
+    margin: 0.5rem 0; /* Reduced margin */
+    background-color: rgba(240, 240, 240, 0.5);
+    border-radius: 0.75rem;
+    padding: 0.25rem 0.5rem; /* Reduced padding */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
 
-    /* Active item */
-    .carousel-item.active .carousel-dot {
-      transform: scale(1.5);
-    }
-    
-    /* Data refresh button */
-    .refresh-button {
-      display: block;
-      background-color: #0066cc;
-      color: white;
-      border: none;
-      border-radius: 0.75rem;
-      padding: 0.75rem 1.5rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin: 1rem auto;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.2s, transform 0.1s;
-    }
-    
-    .refresh-button:hover {
-      background-color: #0052a3;
-    }
-    
-    .refresh-button:active {
-      transform: translateY(2px);
-    }
-    
-    /* Page title */
-    .page-title {
-      text-align: center;
-      color: white;
-      font-size: 2.25rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+  /* Button styles */
+  .control-button {
+    display: block;
+    width: 100%;
+    font-weight: 600;
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.6rem 0.5rem; /* Reduced padding */
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.1s;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    margin-top: auto;
+    margin-bottom: 0.3rem; /* Reduced margin */
+    font-size: 0.9rem; /* Reduced font size */
+  }
 
-    /* Chart labels */
-    .apexcharts-xaxis-label, .apexcharts-yaxis-label {
-      font-size: 10px !important;
-    }
+  .control-button:hover {
+    filter: brightness(1.1);
+  }
+
+  .control-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Sensor-specific colors */
+  .temperature-color {
+    color: #f97316;
+  }
+
+  .temperature-bg {
+    background-color: #f97316;
+  }
+
+  .humidity-color {
+    color: #0ea5e9;
+  }
+
+  .humidity-bg {
+    background-color: #0ea5e9;
+  }
+
+  .pressure-color {
+    color: #8b5cf6;
+  }
+
+  .pressure-bg {
+    background-color: #8b5cf6;
+  }
+
+  .air-quality-color {
+    color: #10b981;
+  }
+
+  .air-quality-bg {
+    background-color: #10b981;
+  }
+
+  /* Active item */
+  .carousel-item.active .carousel-dot {
+    transform: scale(1.2); /* Slightly reduced scale */
+  }
+
+  /* Data refresh button */
+  .refresh-button {
+    display: block;
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.6rem 1rem; /* Reduced padding */
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0.75rem auto; /* Reduced margin */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s, transform 0.1s;
+    font-size: 0.9rem; /* Reduced font size */
+  }
+
+  .refresh-button:hover {
+    background-color: #0052a3;
+  }
+
+  .refresh-button:active {
+    transform: translateY(2px);
+  }
+
+  /* Page title */
+  .page-title {
+    text-align: center;
+    color: white;
+    font-size: 2rem; /* Reduced font size */
+    font-weight: 700;
+    margin-bottom: 1rem; /* Reduced margin */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Chart labels */
+  .apexcharts-xaxis-label, .apexcharts-yaxis-label {
+    font-size: 9px !important; /* Further reduced font size */
+  }
+
+  /* Modify ApexCharts Y-axis to reduce height */
+  /* This will need to be done in the JavaScript where you initialize the charts */
   </style>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-</head>
-<body>
+  </head>
+  <body>
   <h1 class="page-title">Μετρήσεις Ατμοσφαιρικών Συνθηκών</h1>
-  
+
   <div class="container">
-    <div class="header">
-      <h2 class="title">Καλωσήρθατε, Χρήστη</h2>
-      <div class="live-indicator">
+  <div class="header">
+    <h2 class="title">Καλωσήρθατε, Χρήστη</h2>
+    <div class="live-indicator">
         Ζωντανά δεδομένα • Ενημέρωση <span id="last-updated">Τώρα</span>
-      </div>
     </div>
-    
-    <div class="grid">
-      <!-- Temperature Card -->
-      <div class="sensor-card">
+  </div>
+
+  <div class="grid">
+    <div class="sensor-card">
         <div class="card-header">
-          <h2 class="card-title">Θερμοκρασία</h2>
-          <svg class="card-icon temperature-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
-          </svg>
+            <h2 class="card-title">Θερμοκρασία</h2>
+            <svg class="card-icon temperature-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
+            </svg>
         </div>
-        
+
         <div class="value-container">
-          <span class="current-value temperature-color">22.5</span>
-          <span class="unit">°C</span>
+            <span class="current-value temperature-color">22.5</span>
+            <span class="unit">°C</span>
         </div>
-        
+
         <div class="carousel">
-          <button class="carousel-button prev-btn" data-sensor="temperature">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m15 18-6-6 6-6"></path>
-            </svg>
-          </button>
-          
-          <div class="carousel-items">
-            <div class="carousel-slider" id="temperature-carousel">
-              <!-- Will be populated by JavaScript -->
+            <button class="carousel-button prev-btn" data-sensor="temperature">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m15 18-6-6 6-6"></path>
+                </svg>
+            </button>
+
+            <div class="carousel-items">
+                <div class="carousel-slider" id="temperature-carousel">
+                    </div>
             </div>
-          </div>
-          
-          <button class="carousel-button next-btn" data-sensor="temperature">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m9 18 6-6-6-6"></path>
-            </svg>
-          </button>
+
+            <button class="carousel-button next-btn" data-sensor="temperature">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 18 6-6-6-6"></path>
+                </svg>
+            </button>
         </div>
-        
+
         <div class="chart-container" id="temperature-chart"></div>
-        
+
         <button class="control-button temperature-bg" onclick="sendControl('temperature')">
-          Ρύθμιση Θερμοκρασίας
+            Ρύθμιση Θερμοκρασίας
         </button>
-      </div>
-      
-      <!-- Humidity Card -->
-      <div class="sensor-card">
+    </div>
+
+    <div class="sensor-card">
         <div class="card-header">
-          <h2 class="card-title">Υγρασία</h2>
-          <svg class="card-icon humidity-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path>
-          </svg>
+            <h2 class="card-title">Υγρασία</h2>
+            <svg class="card-icon humidity-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path>
+            </svg>
         </div>
-        
+
         <div class="value-container">
-          <span class="current-value humidity-color">58.2</span>
-          <span class="unit">%</span>
+            <span class="current-value humidity-color">58.2</span>
+            <span class="unit">%</span>
         </div>
-        
+
         <div class="carousel">
-          <button class="carousel-button prev-btn" data-sensor="humidity">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m15 18-6-6 6-6"></path>
-            </svg>
-          </button>
-          
-          <div class="carousel-items">
-            <div class="carousel-slider" id="humidity-carousel">
-              <!-- Will be populated by JavaScript -->
-            </div>
-          </div>
-          
-          <button class="carousel-button next-btn" data-sensor="humidity">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m9 18 6-6-6-6"></path>
-            </svg>
-          </button>
-        </div>
-        
-        <div class="chart-container" id="humidity-chart"></div>
-        
-        <button class="control-button humidity-bg" onclick="sendControl('humidity')">
-          Ρύθμιση Υγρασίας
-        </button>
-      </div>
-      
-      <!-- Pressure Card -->
-      <div class="sensor-card">
-        <div class="card-header">
-          <h2 class="card-title">Πίεση</h2>
-          <svg class="card-icon pressure-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 12v.01"></path>
-            <path d="M19.071 4.929c-1.889-1.889-4.608-2.843-8.106-2.923C7.488 1.926 4.71 2.94 2.757 4.893 1.35 6.3.483 8.183.3 10.331c-.28 3.3.694 5.9 2.905 8.111a10.956 10.956 0 0 0 7.762 3.242c2.191.14 4.12-.361 5.776-1.397a10.902 10.902 0 0 0 4.843-5.949 11.174 11.174 0 0 0 .42-3.312c-.203-3.35-1.143-5.96-2.936-7.797Z"></path>
-            <path d="m9 12 3 3 9-9"></path>
-          </svg>
-        </div>
-        
-        <div class="value-container">
-          <span class="current-value pressure-color">1014</span>
-          <span class="unit">hPa</span>
-        </div>
-        
-        <div class="carousel">
-          <button class="carousel-button prev-btn" data-sensor="pressure">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m15 18-6-6 6-6"></path>
-            </svg>
-          </button>
-          
-          <div class="carousel-items">
-            <div class="carousel-slider" id="pressure-carousel">
-              <!-- Will be populated by JavaScript -->
-            </div>
-          </div>
-          
-          <button class="carousel-button next-btn" data-sensor="pressure">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m9 18 6-6-6-6"></path>
-            </svg>
-          </button>
-        </div>
-        
-        <div class="chart-container" id="pressure-chart"></div>
-        
-        <button class="control-button pressure-bg" onclick="sendControl('pressure')">
-          Ρύθμιση Πίεσης
-        </button>
-      </div>
-      
-      <!-- Air Quality Card -->
-      <div class="sensor-card">
-        <div class="card-header">
-          <h2 class="card-title">Ποιότητα Αέρα</h2>
-          <svg class="card-icon air-quality-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 2v2"></path>
-            <path d="M16 2v2"></path>
-            <path d="M8 20v2"></path>
-            <path d="M16 20v2"></path>
-            <path d="M10 8h8a2 2 0 0 1 2 2"></path>
-            <path d="M4 10v4a8 8 0 0 0 16 0v-4"></path>
-          </svg>
-        </div>
-        
-        <div class="value-container">
-          <span class="current-value air-quality-color">75</span>
-          <span class="unit">AQI</span>
-        </div>
-        
-        <div class="carousel">
-          <button class="carousel-button prev-btn" data-sensor="airQuality">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m15 18-6-6 6-6"></path>
-            </svg>
-          </button>
-          
-          <div class="carousel-items">
-            <div class="carousel-slider" id="airQuality-carousel">
-              <!-- Will be populated by JavaScript -->
-            </div>
-          </div>
-          
-          <button class="carousel-button next-btn" data-sensor="airQuality">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button class="carousel-button prev-btn" data-sensor="humidity">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
               <path d="m9 18 6-6-6-6"></path>
             </svg>
           </button>

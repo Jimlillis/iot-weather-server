@@ -3,97 +3,698 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IoT Environmental Monitor</title>
+  <title>Environmental Monitoring Dashboard</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    /* Font import */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    /* Base styles */
+    * {
       margin: 0;
       padding: 0;
-      background-color: #f0f4f8;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
     }
-    header {
-      padding: 20px;
-      text-align: center;
-      background-color: #4a90e2;
-      color: white;
-      font-size: 24px;
+    
+    body {
+      background-color: hsl(210, 40%, 98%);
+      color: hsl(222.2, 84%, 4.9%);
+      padding: 2rem 1rem;
     }
+    
     .container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      padding: 20px;
+      max-width: 1280px;
+      margin: 0 auto;
     }
-    .card {
-      background-color: white;
-      border-radius: 15px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      width: 300px;
-      height: 300px;
+    
+    /* Header styles */
+    .header {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
+      margin-bottom: 2rem;
     }
-    .card .icon {
-      font-size: 32px;
+    
+    @media (min-width: 768px) {
+      .header {
+        flex-direction: row;
+      }
+    }
+    
+    .title {
+      font-size: 1.875rem;
+      font-weight: 600;
+      color: hsl(221, 83%, 53%);
+      margin-bottom: 0.5rem;
+    }
+    
+    @media (min-width: 768px) {
+      .title {
+        margin-bottom: 0;
+      }
+    }
+    
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: hsl(215.4, 16.3%, 46.9%);
+    }
+    
+    .live-indicator::before {
+      content: "";
+      width: 0.5rem;
+      height: 0.5rem;
+      background-color: #10b981;
+      border-radius: 50%;
+      margin-right: 0.25rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+    
+    /* Card grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    
+    /* Sensor card styles */
+    .sensor-card {
+      background-color: white;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      transition: box-shadow 0.2s ease;
+    }
+    
+    .sensor-card:hover {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      transform: rotate(-90deg);
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
     }
-    .card .value {
-      font-size: 28px;
-      font-weight: bold;
-    }
+    
     .card-title {
-      font-size: 18px;
-      margin-bottom: 10px;
+      font-size: 1.125rem;
+      font-weight: 500;
+      color: hsl(215, 25%, 27%);
+    }
+    
+    .card-icon {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    
+    .value-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.25rem;
+    }
+    
+    .current-value {
+      font-size: 1.875rem;
+      font-weight: 600;
+    }
+    
+    .unit {
+      font-size: 1.125rem;
+      color: hsl(215.4, 16.3%, 46.9%);
+      margin-bottom: 0.25rem;
+    }
+    
+    /* Carousel styles */
+    .carousel {
+      display: flex;
+      align-items: center;
+      margin: 0.75rem 0;
+    }
+    
+    .carousel-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 1.75rem;
+      height: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: hsl(215.4, 16.3%, 46.9%);
+    }
+    
+    .carousel-items {
+      flex: 1;
+      overflow: hidden;
+    }
+    
+    .carousel-slider {
+      display: flex;
+      justify-content: space-between;
+      transition: transform 0.3s ease;
+    }
+    
+    .carousel-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0.25rem;
+      text-align: center;
+    }
+    
+    .carousel-dot {
+      height: 0.375rem;
+      width: 0.375rem;
+      border-radius: 50%;
+      margin-bottom: 0.25rem;
+    }
+    
+    .carousel-time {
+      font-size: 0.75rem;
+      color: hsl(215.4, 16.3%, 46.9%);
+    }
+    
+    .carousel-value {
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    /* Chart styles */
+    .chart-container {
+      height: 8rem;
+      margin: 1rem 0 0.75rem;
+    }
+    
+    /* Button styles */
+    .control-button {
+      display: block;
+      width: 100%;
+      font-weight: 500;
+      color: white;
+      border: none;
+      border-radius: 0.375rem;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: filter 0.2s;
+    }
+    
+    .control-button:hover {
+      filter: brightness(0.9);
+    }
+    
+    /* Sensor-specific colors */
+    .temperature-color {
+      color: #f97316;
+    }
+    
+    .temperature-bg {
+      background-color: #f97316;
+    }
+    
+    .humidity-color {
+      color: #0ea5e9;
+    }
+    
+    .humidity-bg {
+      background-color: #0ea5e9;
+    }
+    
+    .pressure-color {
+      color: #8b5cf6;
+    }
+    
+    .pressure-bg {
+      background-color: #8b5cf6;
+    }
+    
+    .air-quality-color {
+      color: #10b981;
+    }
+    
+    .air-quality-bg {
+      background-color: #10b981;
+    }
+
+    /* Active item */
+    .carousel-item.active .carousel-dot {
+      transform: scale(1.5);
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
-  <header>Welcome, <span id="username">username</span></header>
   <div class="container">
-    <div class="card">
-      <div class="card-title">Temperature</div>
-      <div class="icon">🌡️</div>
-      <div class="value" id="tempValue">-- °C</div>
+    <div class="header">
+      <h1 class="title">Welcome, User</h1>
+      <div class="live-indicator">
+        Live data • Updated <span id="last-updated">Now</span>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-title">Humidity</div>
-      <div class="icon">💧</div>
-      <div class="value" id="humidityValue">-- %</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Pressure</div>
-      <div class="icon">📉</div>
-      <div class="value" id="pressureValue">-- hPa</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Air Quality</div>
-      <div class="icon">🌫️</div>
-      <div class="value" id="airQualityValue">-- AQI</div>
+    
+    <div class="grid">
+      <!-- Temperature Card -->
+      <div class="sensor-card">
+        <div class="card-header">
+          <h2 class="card-title">Temperature</h2>
+          <svg class="card-icon temperature-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
+          </svg>
+        </div>
+        
+        <div class="value-container">
+          <span class="current-value temperature-color">22.5</span>
+          <span class="unit">°C</span>
+        </div>
+        
+        <div class="carousel">
+          <button class="carousel-button prev-btn" data-sensor="temperature">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+          </button>
+          
+          <div class="carousel-items">
+            <div class="carousel-slider" id="temperature-carousel">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+          
+          <button class="carousel-button next-btn" data-sensor="temperature">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="chart-container" id="temperature-chart"></div>
+        
+        <button class="control-button temperature-bg" onclick="sendControl('temperature')">
+          Set Temperature
+        </button>
+      </div>
+      
+      <!-- Humidity Card -->
+      <div class="sensor-card">
+        <div class="card-header">
+          <h2 class="card-title">Humidity</h2>
+          <svg class="card-icon humidity-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path>
+          </svg>
+        </div>
+        
+        <div class="value-container">
+          <span class="current-value humidity-color">58.2</span>
+          <span class="unit">%</span>
+        </div>
+        
+        <div class="carousel">
+          <button class="carousel-button prev-btn" data-sensor="humidity">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+          </button>
+          
+          <div class="carousel-items">
+            <div class="carousel-slider" id="humidity-carousel">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+          
+          <button class="carousel-button next-btn" data-sensor="humidity">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="chart-container" id="humidity-chart"></div>
+        
+        <button class="control-button humidity-bg" onclick="sendControl('humidity')">
+          Set Humidity
+        </button>
+      </div>
+      
+      <!-- Pressure Card -->
+      <div class="sensor-card">
+        <div class="card-header">
+          <h2 class="card-title">Pressure</h2>
+          <svg class="card-icon pressure-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 12v.01"></path>
+            <path d="M19.071 4.929c-1.889-1.889-4.608-2.843-8.106-2.923C7.488 1.926 4.71 2.94 2.757 4.893 1.35 6.3.483 8.183.3 10.331c-.28 3.3.694 5.9 2.905 8.111a10.956 10.956 0 0 0 7.762 3.242c2.191.14 4.12-.361 5.776-1.397a10.902 10.902 0 0 0 4.843-5.949 11.174 11.174 0 0 0 .42-3.312c-.203-3.35-1.143-5.96-2.936-7.797Z"></path>
+            <path d="m9 12 3 3 9-9"></path>
+          </svg>
+        </div>
+        
+        <div class="value-container">
+          <span class="current-value pressure-color">1014</span>
+          <span class="unit">hPa</span>
+        </div>
+        
+        <div class="carousel">
+          <button class="carousel-button prev-btn" data-sensor="pressure">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+          </button>
+          
+          <div class="carousel-items">
+            <div class="carousel-slider" id="pressure-carousel">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+          
+          <button class="carousel-button next-btn" data-sensor="pressure">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="chart-container" id="pressure-chart"></div>
+        
+        <button class="control-button pressure-bg" onclick="sendControl('pressure')">
+          Set Pressure
+        </button>
+      </div>
+      
+      <!-- Air Quality Card -->
+      <div class="sensor-card">
+        <div class="card-header">
+          <h2 class="card-title">Air Quality</h2>
+          <svg class="card-icon air-quality-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 2v2"></path>
+            <path d="M16 2v2"></path>
+            <path d="M8 20v2"></path>
+            <path d="M16 20v2"></path>
+            <path d="M10 8h8a2 2 0 0 1 2 2"></path>
+            <path d="M4 10v4a8 8 0 0 0 16 0v-4"></path>
+          </svg>
+        </div>
+        
+        <div class="value-container">
+          <span class="current-value air-quality-color">75</span>
+          <span class="unit">AQI</span>
+        </div>
+        
+        <div class="carousel">
+          <button class="carousel-button prev-btn" data-sensor="airQuality">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+          </button>
+          
+          <div class="carousel-items">
+            <div class="carousel-slider" id="airQuality-carousel">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+          
+          <button class="carousel-button next-btn" data-sensor="airQuality">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="chart-container" id="airQuality-chart"></div>
+        
+        <button class="control-button air-quality-bg" onclick="sendControl('airQuality')">
+          Set Air Quality
+        </button>
+      </div>
     </div>
   </div>
 
   <script>
-    // Replace this with your own username logic
-    const username = 'alexandroskosmidis';
-    document.getElementById('username').textContent = username;
+    // Configuration
+    const sensorConfig = {
+      temperature: {
+        color: '#f97316',
+        baseValue: 22,
+        variance: 5,
+        unit: '°C',
+        min: 15,
+        max: 30
+      },
+      humidity: {
+        color: '#0ea5e9',
+        baseValue: 60,
+        variance: 15,
+        unit: '%',
+        min: 40,
+        max: 80
+      },
+      pressure: {
+        color: '#8b5cf6',
+        baseValue: 1013,
+        variance: 5,
+        unit: 'hPa',
+        min: 1005,
+        max: 1025
+      },
+      airQuality: {
+        color: '#10b981',
+        baseValue: 75,
+        variance: 20,
+        unit: 'AQI',
+        min: 50,
+        max: 100
+      }
+    };
 
-    // Simulated data updates (replace with real sensor fetching logic)
-    function updateValues() {
-      document.getElementById('tempValue').textContent = (20 + Math.random() * 10).toFixed(1) + ' °C';
-      document.getElementById('humidityValue').textContent = (40 + Math.random() * 20).toFixed(1) + ' %';
-      document.getElementById('pressureValue').textContent = (1000 + Math.random() * 20).toFixed(1) + ' hPa';
-      document.getElementById('airQualityValue').textContent = (50 + Math.random() * 50).toFixed(0) + ' AQI';
+    // Generate mock data
+    function generateMockData(sensorType, count) {
+      const config = sensorConfig[sensorType];
+      const data = [];
+      const now = new Date();
+      
+      for (let i = count - 1; i >= 0; i--) {
+        const time = new Date(now.getTime() - i * 3600000);
+        const value = config.baseValue + 
+          (Math.random() * config.variance * 2 - config.variance);
+        
+        data.push({
+          time: i === 0 ? 'Now' : `${time.getHours()}:00`,
+          value: Number(value.toFixed(1))
+        });
+      }
+      
+      return data;
     }
 
-    setInterval(updateValues, 5000);
-    updateValues();
+    // Generate data for each sensor
+    const sensorData = {
+      temperature: generateMockData('temperature', 8),
+      humidity: generateMockData('humidity', 8),
+      pressure: generateMockData('pressure', 8),
+      airQuality: generateMockData('airQuality', 8)
+    };
+
+    // Initialize carousels
+    function initializeCarousels() {
+      Object.keys(sensorData).forEach(sensor => {
+        const carouselEl = document.getElementById(`${sensor}-carousel`);
+        const data = sensorData[sensor];
+        const config = sensorConfig[sensor];
+        
+        // Populate carousel items
+        data.forEach((item, index) => {
+          const itemEl = document.createElement('div');
+          itemEl.className = `carousel-item ${index === data.length - 1 ? 'active' : ''}`;
+          
+          const dotEl = document.createElement('div');
+          dotEl.className = 'carousel-dot';
+          dotEl.style.backgroundColor = config.color;
+          
+          const timeEl = document.createElement('span');
+          timeEl.className = 'carousel-time';
+          timeEl.textContent = item.time;
+          
+          const valueEl = document.createElement('span');
+          valueEl.className = 'carousel-value';
+          valueEl.textContent = item.value;
+          
+          itemEl.appendChild(dotEl);
+          itemEl.appendChild(timeEl);
+          itemEl.appendChild(valueEl);
+          carouselEl.appendChild(itemEl);
+        });
+        
+        // Set initial current value
+        const currentValueEl = document.querySelector(`.sensor-card:nth-child(${Object.keys(sensorData).indexOf(sensor) + 1}) .current-value`);
+        currentValueEl.textContent = data[data.length - 1].value;
+        
+        // Setup carousel navigation
+        setupCarouselNavigation(sensor);
+      });
+    }
+
+    // Setup carousel navigation
+    function setupCarouselNavigation(sensor) {
+      const carouselEl = document.getElementById(`${sensor}-carousel`);
+      const prevBtn = document.querySelector(`.prev-btn[data-sensor="${sensor}"]`);
+      const nextBtn = document.querySelector(`.next-btn[data-sensor="${sensor}"]`);
+      const items = carouselEl.querySelectorAll('.carousel-item');
+      const itemWidth = 100 / 5; // 5 visible items
+      let currentIndex = items.length - 1;
+      
+      // Update carousel position
+      function updateCarousel() {
+        // Update active state
+        items.forEach((item, index) => {
+          item.classList.toggle('active', index === currentIndex);
+        });
+        
+        // Calculate translate value to center active item
+        let translateX = 0;
+        if (currentIndex > 2) {
+          translateX = (currentIndex - 2) * -itemWidth;
+        }
+        
+        carouselEl.style.transform = `translateX(${translateX}%)`;
+      }
+      
+      // Previous button click
+      prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateCarousel();
+        }
+      });
+      
+      // Next button click
+      nextBtn.addEventListener('click', () => {
+        if (currentIndex < items.length - 1) {
+          currentIndex++;
+          updateCarousel();
+        }
+      });
+      
+      // Initialize position
+      updateCarousel();
+    }
+
+    // Initialize charts
+    function initializeCharts() {
+      Object.keys(sensorData).forEach(sensor => {
+        const data = sensorData[sensor].map(item => item.value);
+        const categories = sensorData[sensor].map(item => item.time);
+        const config = sensorConfig[sensor];
+        
+        const options = {
+          series: [{
+            name: sensor,
+            data: data
+          }],
+          chart: {
+            height: '100%',
+            type: 'line',
+            toolbar: {
+              show: false
+            },
+            zoom: {
+              enabled: false
+            },
+            fontFamily: 'Inter, sans-serif'
+          },
+          colors: [config.color],
+          stroke: {
+            curve: 'smooth',
+            width: 2
+          },
+          grid: {
+            show: false
+          },
+          xaxis: {
+            categories: categories,
+            labels: {
+              style: {
+                fontSize: '10px',
+                fontFamily: 'Inter, sans-serif'
+              },
+              show: false
+            },
+            axisBorder: {
+              show: false
+            },
+            axisTicks: {
+              show: false
+            }
+          },
+          yaxis: {
+            show: false,
+            min: config.min,
+            max: config.max
+          },
+          tooltip: {
+            enabled: true,
+            theme: 'light',
+            style: {
+              fontSize: '12px',
+              fontFamily: 'Inter, sans-serif'
+            },
+            x: {
+              show: false
+            }
+          },
+          markers: {
+            size: 3,
+            strokeWidth: 0
+          }
+        };
+        
+        const chart = new ApexCharts(document.getElementById(`${sensor}-chart`), options);
+        chart.render();
+      });
+    }
+
+    // Send control signal
+    function sendControl(sensor) {
+      // In a real app, this would send a signal to a server or IoT device
+      alert(`Control signal sent to ${sensor} sensor`);
+    }
+
+    // Update time display
+    function updateTimeDisplay() {
+      const timeEl = document.getElementById('last-updated');
+      timeEl.textContent = new Date().toLocaleTimeString();
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeCarousels();
+      initializeCharts();
+      
+      // Update time display every 30 seconds
+      updateTimeDisplay();
+      setInterval(updateTimeDisplay, 30000);
+    });
   </script>
 </body>
 </html>

@@ -682,95 +682,45 @@
     }
 
     // Initialize charts
-    function initializeCharts() {
-      Object.keys(sensorData).forEach(sensor => {
-        const data = sensorData[sensor].map(item => item.value);
-        const categories = sensorData[sensor].map(item => item.time);
-        const config = sensorConfig[sensor];
-        
-        const options = {
-          series: [{
-            name: sensor,
-            data: data
-          }],
-          chart: {
-            height: '100%',
-            type: 'line',
-            toolbar: {
-              show: false
-            },
-            zoom: {
-              enabled: false
-            },
-            fontFamily: 'Inter, sans-serif',
-            background: 'transparent'
-          },
-          colors: [config.color],
-          stroke: {
-            curve: 'smooth',
-            width: 3
-          },
-          grid: {
-            borderColor: 'rgba(0, 0, 0, 0.05)',
-            row: {
-              colors: ['transparent', 'transparent']
-            }
-          },
-          xaxis: {
-            categories: categories,
-            labels: {
-              style: {
-                fontSize: '10px',
-                fontFamily: 'Inter, sans-serif',
-                colors: '#666'
-              },
-              rotate: 0
-            },
-            axisBorder: {
-              show: false
-            },
-            axisTicks: {
-              show: false
-            }
-          },
-          yaxis: {
-            min: config.min,
-            max: config.max,
-            labels: {
-              style: {
-                fontSize: '10px',
-                fontFamily: 'Inter, sans-serif',
-                colors: '#666'
-              },
-              formatter: function(val) {
-                return val.toFixed(1);
-              }
-            }
-          },
-          tooltip: {
-            enabled: true,
-            theme: 'light',
+    function createChart(containerId, label, data, yMin, yMax, color) {
+      const options = {
+        chart: {
+          type: 'line',
+          height: 200,
+          toolbar: { show: false }
+        },
+        series: [{ name: label, data }],
+        stroke: { curve: 'smooth' },
+        xaxis: { labels: { show: false } },
+        yaxis: {
+          min: yMin,
+          max: yMax,
+          labels: {
             style: {
-              fontSize: '12px',
-              fontFamily: 'Inter, sans-serif'
+              colors: color
             }
-          },
-          markers: {
-            size: 4,
-            strokeWidth: 0,
-            hover: {
-              size: 6
-            }
-          },
-          dataLabels: {
-            enabled: false
           }
-        };
-        
-        const chart = new ApexCharts(document.getElementById(`${sensor}-chart`), options);
-        chart.render();
-      });
+        },
+        colors: [color],
+        tooltip: { enabled: true },
+        grid: { show: false }
+      };
+
+      const chart = new ApexCharts(document.querySelector(containerId), options);
+      chart.render();
     }
+
+    // Παράδειγμα δεδομένων - αντικατέστησέ τα με δυναμικά από backend
+    const temperatureData = [22.3, 22.5, 22.2, 22.8, 22.4];
+    const humidityData = [55, 58.2, 56, 59, 57];
+    const pressureData = [1012, 1014, 1013, 1015, 1011];
+    const airQualityData = [70, 75, 72, 78, 74];
+
+    // Δημιουργία όλων των διαγραμμάτων με πιο μικρό y-axis
+    createChart("#temperature-chart", "Θερμοκρασία", temperatureData, 20, 25, "#ff5733");
+    createChart("#humidity-chart", "Υγρασία", humidityData, 40, 70, "#3498db");
+    createChart("#pressure-chart", "Πίεση", pressureData, 1000, 1020, "#27ae60");
+    createChart("#airQuality-chart", "Ποιότητα Αέρα", airQualityData, 0, 150, "#9b59b6");
 
     // Send control signal
     function sendControl(sensor) {
@@ -835,6 +785,8 @@
       // Update time display every 60 seconds
       updateTimeDisplay();
       setInterval(updateTimeDisplay, 60000);
+
+
     });
   </script>
 </body>

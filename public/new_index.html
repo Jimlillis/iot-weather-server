@@ -76,12 +76,8 @@
     }
 
     @keyframes pulse {
-      0%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.7;
-      }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
     }
 
     .grid {
@@ -109,10 +105,9 @@
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
       border: 1px solid rgba(255, 255, 255, 0.9);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
-      height: 800px;
+      height: 650px;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
     }
 
     .sensor-card:hover {
@@ -146,7 +141,6 @@
       gap: 0.25rem;
       margin-top: 0.5rem;
       margin-bottom: 1rem;
-      word-break: break-word;
     }
 
     .current-value {
@@ -227,12 +221,12 @@
     }
 
     .chart-container {
-      height: 160px;           /* Ήταν 280px */
-      max-height: 160px;       /* Περιορίζει το ύψος */
-      margin: 1rem 0 1rem 0;   /* Μικρότερο κάτω περιθώριο */
+      height: 140px;
+      max-height: 140px;
+      margin: 1rem 0;
       background-color: rgba(240, 240, 240, 0.5);
       border-radius: 0.75rem;
-      padding: 0.5rem;         /* Λιγότερο padding */
+      padding: 0.5rem;
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
       flex-grow: 1;
     }

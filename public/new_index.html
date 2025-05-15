@@ -747,7 +747,7 @@
         }
 
         const data = await response.json();
-
+        console.log(data); 
         if (!Array.isArray(data)) {
           console.error("Αναμενόταν array αλλά ήρθε:", data);
           container.innerHTML += `<div class="error-message">Τα δεδομένα που λήφθηκαν δεν είναι έγκυρα.</div>`;

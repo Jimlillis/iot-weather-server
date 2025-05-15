@@ -764,11 +764,23 @@
         }
 
         // Ανανεώνουμε γραφήματα / carousels
-        initializeCarousels();
-        initializeCharts();
+        //initializeCarousels();
+        //initializeCharts();
 
         // Μήνυμα επιτυχίας
         const successMessage = document.createElement('div');
+        successMessage.textContent = 'Τα δεδομένα ενημερώθηκαν επιτυχώς!';
+        successMessage.style.position = 'fixed';
+        successMessage.style.top = '20px';
+        successMessage.style.left = '50%';
+        successMessage.style.transform = 'translateX(-50%)';
+        successMessage.style.backgroundColor = '#10b981';
+        successMessage.style.color = 'white';
+        successMessage.style.padding = '0.75rem 1.5rem';
+        successMessage.style.borderRadius = '0.5rem';
+        successMessage.style.boxShadow = '0 3px 6px rgba(0, 0, 0, 0.15)';
+        successMessage.style.zIndex = '1000';
+        successMessage.style.fontWeight = '500';
         successMessage.textContent = 'Τα δεδομένα ενημερώθηκαν επιτυχώς!';
         // ... υπόλοιπο styling μηνύματος όπως το είχες
         document.body.appendChild(successMessage);

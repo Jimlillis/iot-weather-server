@@ -727,65 +727,93 @@
       // In a real app, this would send a signal to a server or IoT device
       alert(`Το σήμα ελέγχου στάλθηκε στον αισθητήρα ${sensor}`);
     }
-    
-    // Refresh data
     async function fetchData() {
       try {
-        const response = await fetch('/data', {
-          credentials: 'include'
-        });
-
-        const container = document.querySelector('.container');
-
-        if (!response.ok) {
-          const errorMessage = await response.text();
-          console.error("Σφάλμα HTTP:", response.status, errorMessage);
-          container.innerHTML += `<div class="error-message">
-            ${response.status === 401 ? 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.' : 'Αποτυχία ανάκτησης δεδομένων.'}
-          </div>`;
-          return;
-        }
-
+        const response = await fetch('/data');
         const data = await response.json();
-        console.log(data); 
-        if (!Array.isArray(data)) {
-          console.error("Αναμενόταν array αλλά ήρθε:", data);
-          container.innerHTML += `<div class="error-message">Τα δεδομένα που λήφθηκαν δεν είναι έγκυρα.</div>`;
+
+        if (!Array.isArray(data) || data.length === 0) {
+          console.warn('Δεν υπάρχουν δεδομένα για εμφάνιση');
           return;
         }
 
-        if (data.length === 0) {
-          container.innerHTML += `<div class="error-message">Δεν υπάρχουν διαθέσιμα δεδομένα.</div>`;
-          return;
-        }
-
-        // Πάρε το πιο πρόσφατο δείγμα για εμφάνιση στις κάρτες
+        // Παίρνουμε την πιο πρόσφατη εγγραφή
         const latest = data[data.length - 1];
+
+        // Ενημέρωση τιμών στα πλαίσια
         document.querySelector('.current-value.temperature-color').textContent = latest.temperature;
         document.querySelector('.current-value.humidity-color').textContent = latest.humidity;
         document.querySelector('.current-value.pressure-color').textContent = latest.pressure;
         document.querySelector('.current-value.air-quality-color').textContent = latest.air_quality;
-        document.getElementById('last-updated').textContent = new Date(latest.timestamp).toLocaleTimeString();
 
-        // Ενημέρωση carousel
-        // updateCarousel('temperature', data.map(d => d.temperature + ' °C'));
-        // updateCarousel('humidity', data.map(d => d.humidity + ' %'));
-        // updateCarousel('pressure', data.map(d => d.pressure + ' hPa'));
-        // updateCarousel('airQuality', data.map(d => d.air_quality + ' AQI'));
-
-        // // Ενημέρωση γραφημάτων
-        // updateChart('temperature-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.temperature })));
-        // updateChart('humidity-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.humidity })));
-        // updateChart('pressure-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.pressure })));
-        // updateChart('airQuality-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.air_quality })));
+        // Ενημέρωση timestamp "Ζωντανά δεδομένα • Ενημέρωση ..."
+        const updatedTime = new Date(latest.timestamp).toLocaleString();
+        document.getElementById('last-updated').textContent = updatedTime;
 
       } catch (error) {
-        console.error("Σφάλμα JavaScript κατά το fetch:", error);
-        container.innerHTML += `<div class="error-message">Σφάλμα κατά την ανάκτηση των δεδομένων.</div>`;
+        console.error('Σφάλμα κατά την ανάκτηση δεδομένων:', error);
       }
     }
+    // Refresh data
+    // async function fetchData() {
+    //   try {
+    //     const response = await fetch('/data', {
+    //       credentials: 'include'
+    //     });
 
-    fetchData();
+    //     const container = document.querySelector('.container');
+
+    //     if (!response.ok) {
+    //       const errorMessage = await response.text();
+    //       console.error("Σφάλμα HTTP:", response.status, errorMessage);
+    //       container.innerHTML += `<div class="error-message">
+    //         ${response.status === 401 ? 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.' : 'Αποτυχία ανάκτησης δεδομένων.'}
+    //       </div>`;
+    //       return;
+    //     }
+
+    //     const data = await response.json();
+    //     console.log(data); 
+    //     if (!Array.isArray(data)) {
+    //       console.error("Αναμενόταν array αλλά ήρθε:", data);
+    //       container.innerHTML += `<div class="error-message">Τα δεδομένα που λήφθηκαν δεν είναι έγκυρα.</div>`;
+    //       return;
+    //     }
+
+    //     if (data.length === 0) {
+    //       container.innerHTML += `<div class="error-message">Δεν υπάρχουν διαθέσιμα δεδομένα.</div>`;
+    //       return;
+    //     }
+
+    //     // Πάρε το πιο πρόσφατο δείγμα για εμφάνιση στις κάρτες
+    //     const latest = data[data.length - 1];
+    //     document.querySelector('.current-value.temperature-color').textContent = latest.temperature;
+    //     document.querySelector('.current-value.humidity-color').textContent = latest.humidity;
+    //     document.querySelector('.current-value.pressure-color').textContent = latest.pressure;
+    //     document.querySelector('.current-value.air-quality-color').textContent = latest.air_quality;
+    //     //document.getElementById('last-updated').textContent = new Date(latest.timestamp).toLocaleTimeString();
+
+
+
+    //     // Ενημέρωση carousel
+    //     // updateCarousel('temperature', data.map(d => d.temperature + ' °C'));
+    //     // updateCarousel('humidity', data.map(d => d.humidity + ' %'));
+    //     // updateCarousel('pressure', data.map(d => d.pressure + ' hPa'));
+    //     // updateCarousel('airQuality', data.map(d => d.air_quality + ' AQI'));
+
+    //     // // Ενημέρωση γραφημάτων
+    //     // updateChart('temperature-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.temperature })));
+    //     // updateChart('humidity-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.humidity })));
+    //     // updateChart('pressure-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.pressure })));
+    //     // updateChart('airQuality-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.air_quality })));
+
+    //   } catch (error) {
+    //     console.error("Σφάλμα JavaScript κατά το fetch:", error);
+    //     container.innerHTML += `<div class="error-message">Σφάλμα κατά την ανάκτηση των δεδομένων.</div>`;
+    //   }
+    // }
+
+    // fetchData();
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {

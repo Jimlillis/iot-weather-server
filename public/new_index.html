@@ -524,7 +524,7 @@
       </div>
     </div>
     
-    <button class="refresh-button" onclick="fetchData()">
+    <button class="refresh-button" onclick="refreshData()">
       Ανανέωση Δεδομένων
     </button>
   </div>
@@ -730,50 +730,48 @@
     //Refresh data
     async function refreshData() {
       try {
-        // Ζήτα δεδομένα από backend
         const response = await fetch('/data');
         const data = await response.json();
 
         if (!Array.isArray(data) || data.length === 0) {
-          console.warn('Δεν επιστράφηκαν δεδομένα από το backend.');
+          console.warn('Δεν επιστράφηκαν δεδομένα.');
           return;
         }
 
-        const latest = data[0]; // Η πιο πρόσφατη εγγραφή
+        // Εκκαθάριση sensorData
+        sensorData.temperature = [];
+        sensorData.humidity = [];
+        sensorData.pressure = [];
+        sensorData.air_quality = [];
 
-        // Ενημέρωσε τις live τιμές στο frontend
-        document.getElementById('current-value temperature-color').textContent = latest.temperature;
-        document.getElementById('current-value humidity-color').textContent = latest.humidity;
-        document.getElementById('current-value pressure-color').textContent = latest.pressure;
-        document.getElementById('current-value air-quality-color').textContent = latest.air_quality;
+        // Φόρτωση πραγματικών δεδομένων
+        data.reverse().forEach(entry => {
+          sensorData.temperature.push(entry.temperature);
+          sensorData.humidity.push(entry.humidity);
+          sensorData.pressure.push(entry.pressure);
+          sensorData.air_quality.push(entry.air_quality);
+        });
 
-        // Ενημέρωσε το timestamp
+        // Ενημέρωση current values στο frontend
+        const latest = data[data.length - 1];
+        document.getElementById('temperature-value').textContent = latest.temperature.toFixed(1);
+        document.getElementById('humidity-value').textContent = latest.humidity.toFixed(1);
+        document.getElementById('pressure-value').textContent = latest.pressure.toFixed(0);
+        document.getElementById('air-quality-value').textContent = latest.air_quality.toFixed(0);
+
         if (latest.timestamp) {
-          const updatedTime = new Date(latest.timestamp).toLocaleString('el-GR');
-          document.getElementById('last-updated').textContent = updatedTime;
+          document.getElementById('last-updated').textContent = new Date(latest.timestamp).toLocaleString('el-GR');
         }
 
-        // Αν θες, μπορείς εδώ να κάνεις και update γραφημάτων/carousels αν βασίζονται σε πρόσφατα data
-        // initializeCarousels();
-        // initializeCharts();
+        // Ανανεώνουμε γραφήματα / carousels
+        initializeCarousels();
+        initializeCharts();
 
-        // Δείξε μήνυμα επιτυχίας
+        // Μήνυμα επιτυχίας
         const successMessage = document.createElement('div');
-        successMessage.style.position = 'fixed';
-        successMessage.style.top = '20px';
-        successMessage.style.left = '50%';
-        successMessage.style.transform = 'translateX(-50%)';
-        successMessage.style.backgroundColor = '#10b981';
-        successMessage.style.color = 'white';
-        successMessage.style.padding = '0.75rem 1.5rem';
-        successMessage.style.borderRadius = '0.5rem';
-        successMessage.style.boxShadow = '0 3px 6px rgba(0, 0, 0, 0.15)';
-        successMessage.style.zIndex = '1000';
-        successMessage.style.fontWeight = '500';
         successMessage.textContent = 'Τα δεδομένα ενημερώθηκαν επιτυχώς!';
-        
+        // ... υπόλοιπο styling μηνύματος όπως το είχες
         document.body.appendChild(successMessage);
-        
         setTimeout(() => {
           successMessage.style.opacity = '0';
           successMessage.style.transition = 'opacity 0.5s ease-out';
@@ -786,6 +784,7 @@
         console.error('Σφάλμα κατά την ανανέωση δεδομένων:', error);
       }
     }
+
 
 
     // Initialize

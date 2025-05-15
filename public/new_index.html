@@ -719,8 +719,8 @@
     // Δημιουργία όλων των διαγραμμάτων με πιο μικρό y-axis
     createChart("#temperature-chart", "Θερμοκρασία", temperatureData, 20, 25, "#ff5733");
     createChart("#humidity-chart", "Υγρασία", humidityData, 40, 70, "#3498db");
-    createChart("#pressure-chart", "Πίεση", pressureData, 1000, 1020, "#27ae60");
-    createChart("#airQuality-chart", "Ποιότητα Αέρα", airQualityData, 0, 150, "#9b59b6");
+    createChart("#pressure-chart", "Πίεση", pressureData, 1000, 1020, "#9b59b6");
+    createChart("#airQuality-chart", "Ποιότητα Αέρα", airQualityData, 0, 150, "#27ae60");
 
     // Send control signal
     function sendControl(sensor) {
@@ -729,53 +729,68 @@
     }
     
     // Refresh data
-    function refreshData() {
-      // Regenerate mock data
-      Object.keys(sensorData).forEach(sensor => {
-        sensorData[sensor] = generateMockData(sensor, 8);
-      });
-      
-      // Update carousels and charts
-      initializeCarousels();
-      initializeCharts();
-      
-      // Update time display
-      updateTimeDisplay();
-      
-      // Show success message
-      const successMessage = document.createElement('div');
-      successMessage.style.position = 'fixed';
-      successMessage.style.top = '20px';
-      successMessage.style.left = '50%';
-      successMessage.style.transform = 'translateX(-50%)';
-      successMessage.style.backgroundColor = '#10b981';
-      successMessage.style.color = 'white';
-      successMessage.style.padding = '0.75rem 1.5rem';
-      successMessage.style.borderRadius = '0.5rem';
-      successMessage.style.boxShadow = '0 3px 6px rgba(0, 0, 0, 0.15)';
-      successMessage.style.zIndex = '1000';
-      successMessage.style.fontWeight = '500';
-      successMessage.textContent = 'Τα δεδομένα ενημερώθηκαν επιτυχώς!';
-      
-      document.body.appendChild(successMessage);
-      
-      setTimeout(() => {
-        successMessage.style.opacity = '0';
-        successMessage.style.transition = 'opacity 0.5s ease-out';
-        setTimeout(() => {
-          document.body.removeChild(successMessage);
-        }, 500);
-      }, 3000);
+async function refreshData() {
+  try {
+    const response = await fetch('/data', {
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      console.error('HTTP Σφάλμα:', response.status);
+      return;
     }
 
-    // Update time display
-    function updateTimeDisplay() {
-      const timeEl = document.getElementById('last-updated');
-      const now = new Date();
-      const hours = now.getHours().toString().padStart(2, '0');
-      const minutes = now.getMinutes().toString().padStart(2, '0');
-      timeEl.textContent = `${hours}:${minutes}`;
+    const data = await response.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      console.warn('Δεν υπάρχουν δεδομένα.');
+      return;
     }
+
+    const latest = data[data.length - 1];
+
+    // Ενημέρωση αριθμητικών ενδείξεων
+    document.querySelector('.current-value.temperature-color').textContent = latest.temperature.toFixed(1);
+    document.querySelector('.current-value.humidity-color').textContent = latest.humidity.toFixed(1);
+    document.querySelector('.current-value.pressure-color').textContent = latest.pressure.toFixed(1);
+    document.querySelector('.current-value.air-quality-color').textContent = latest.air_quality.toFixed(1);
+
+    // Ανανεώνει carousel & γραφήματα (αν τα χρησιμοποιείς ακόμα)
+    initializeCarousels?.();
+    initializeCharts?.();
+    updateTimeDisplay?.();
+
+    // Μήνυμα επιτυχίας
+    const successMessage = document.createElement('div');
+    successMessage.style.position = 'fixed';
+    successMessage.style.top = '20px';
+    successMessage.style.left = '50%';
+    successMessage.style.transform = 'translateX(-50%)';
+    successMessage.style.backgroundColor = '#10b981';
+    successMessage.style.color = 'white';
+    successMessage.style.padding = '0.75rem 1.5rem';
+    successMessage.style.borderRadius = '0.5rem';
+    successMessage.style.boxShadow = '0 3px 6px rgba(0, 0, 0, 0.15)';
+    successMessage.style.zIndex = '1000';
+    successMessage.style.fontWeight = '500';
+    successMessage.textContent = 'Τα δεδομένα ενημερώθηκαν επιτυχώς!';
+
+    document.body.appendChild(successMessage);
+
+    setTimeout(() => {
+      successMessage.style.opacity = '0';
+      successMessage.style.transition = 'opacity 0.5s ease-out';
+      setTimeout(() => {
+        document.body.removeChild(successMessage);
+      }, 500);
+    }, 3000);
+
+  } catch (error) {
+    console.error("Σφάλμα JavaScript κατά το refreshData:", error);
+  }
+}
+
+refreshData();
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {

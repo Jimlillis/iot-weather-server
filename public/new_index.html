@@ -723,10 +723,27 @@
     createChart("#airQuality-chart", "Ποιότητα Αέρα", airQualityData, 0, 150, "#27ae60");
 
     // Send control signal
-    function sendControl(sensor) {
-      // In a real app, this would send a signal to a server or IoT device
-      alert(`Το σήμα ελέγχου στάλθηκε στον αισθητήρα ${sensor}`);
+    async function sendControl(sensor) {
+      try {
+        const response = await fetch('/command', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ type: sensor })
+        });
+
+        if (response.ok) {
+          alert(`Η εντολή στάλθηκε επιτυχώς: ${sensor}`);
+        } else {
+          alert("Σφάλμα κατά την αποστολή εντολής");
+        }
+      } catch (error) {
+        console.error("Σφάλμα:", error);
+        alert("Αποτυχία επικοινωνίας με server");
+      }
     }
+
     //Refresh data
     async function refreshData() {
       try {

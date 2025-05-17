@@ -50,6 +50,28 @@ function checkAuth(req, res, next) {
     res.redirect('/login.html');
   }
 }
+//Send control to arduino
+let currentCommand = null; // προσωρινή μεταβλητή
+
+app.post('/command', (req, res) => {
+  const { type } = req.body;
+  if (['temperature', 'humidity', 'air_quality', 'water'].includes(type)) {
+    currentCommand = type;
+    console.log(`Command received: ${type}`);
+    res.sendStatus(200);
+  } else {
+    res.status(400).send('Invalid command');
+  }
+});
+
+app.get('/command', (req, res) => {
+  if (currentCommand) {
+    res.send(currentCommand);
+    currentCommand = null; // καθαρίζει την εντολή μετά την ανάγνωση
+  } else {
+    res.send("none");
+  }
+});
 
 // Προστατευμένο route για index.html
 app.get('/index.html', checkAuth, (req, res) => {

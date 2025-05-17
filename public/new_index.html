@@ -524,7 +524,7 @@
       </div>
     </div>
     
-    <button class="refresh-button" onclick="refreshAll();">
+    <button class="refresh-button" onclick="refresh_data_carousel();">
       Ανανέωση Δεδομένων
     </button>
   </div>
@@ -600,14 +600,16 @@
         const response = await fetch('/data');
         const data = await response.json();
 
-        // Ομαδοποίηση ανά αισθητήρα
         ['temperature', 'humidity', 'pressure', 'airQuality'].forEach(sensor => {
-          sensorData[sensor] = data
-            .map(row => ({
-              time: new Date(row.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              value: Number(row[sensor === 'airQuality' ? 'air_quality' : sensor]?.toFixed(1))
-            }))
-            .reverse(); // Για να είναι από παλαιότερη → νεότερη
+          const dbField = sensor === 'airQuality' ? 'air_quality' : sensor;
+
+          sensorData[sensor] = data.map(row => ({
+            time: new Date(row.timestamp).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
+            value: Number(row[dbField]?.toFixed(1))
+          })).reverse(); // παλαιότερα → νεότερα
         });
 
         initializeCarousels();
@@ -627,11 +629,8 @@
 
         const data = sensorData[sensor];
         const config = sensorConfig[sensor];
-
-        // Clear existing items
         carouselEl.innerHTML = '';
 
-        // Create items
         data.forEach((item, index) => {
           const itemEl = document.createElement('div');
           itemEl.className = `carousel-item ${index === data.length - 1 ? 'active' : ''}`;
@@ -654,22 +653,21 @@
           carouselEl.appendChild(itemEl);
         });
 
-        // Setup navigation
         setupCarouselNavigation(sensor);
       });
     }
 
+    // Πλοήγηση σε carousel
     function setupCarouselNavigation(sensor) {
       const carouselEl = document.getElementById(`${sensor}-carousel`);
       const prevBtn = document.querySelector(`.prev-btn[data-sensor="${sensor}"]`);
       const nextBtn = document.querySelector(`.next-btn[data-sensor="${sensor}"]`);
       const items = carouselEl.querySelectorAll('.carousel-item');
-      const itemWidth = 100 / 5; // 5 ορατά αντικείμενα
+      const itemWidth = 100 / 5;
       let currentIndex = items.length - 1;
 
       if (!carouselEl || !prevBtn || !nextBtn || items.length === 0) return;
 
-      // Update carousel position
       function updateCarousel() {
         items.forEach((item, index) => {
           item.classList.toggle('active', index === currentIndex);
@@ -679,7 +677,6 @@
         carouselEl.style.transform = `translateX(${translateX}%)`;
       }
 
-      // Καθαρίζουμε προηγούμενους listeners (αν υπήρχαν)
       prevBtn.replaceWith(prevBtn.cloneNode(true));
       nextBtn.replaceWith(nextBtn.cloneNode(true));
 
@@ -703,6 +700,7 @@
       updateCarousel();
     }
 
+    // Ανανέωση με την πιο πρόσφατη μέτρηση
     async function refresh_data_carousel() {
       try {
         const response = await fetch('/data');
@@ -715,7 +713,7 @@
             temperature: Number(latest.temperature.toFixed(1)),
             humidity: Number(latest.humidity.toFixed(1)),
             pressure: Number(latest.pressure.toFixed(1)),
-            airQuality: Number(latest.air_quality.toFixed(1))
+            airQuality: Number(latest.air_quality.toFixed(1))  // Προσοχή εδώ!
           }
         };
 
@@ -731,7 +729,7 @@
         });
 
         initializeCarousels();
-        updateTimeDisplay();
+        updateTimeDisplay?.(); // Προαιρετικό αν υπάρχει
       } catch (error) {
         console.error('Σφάλμα κατά την ανανέωση δεδομένων:', error);
       }
@@ -912,10 +910,10 @@
       }
     }
 
-    async function refreshAll() {
-      refreshData(); // περιμένει να ολοκληρωθεί πρώτα
-      await refresh_data_carousel(); // μετά συνεχίζει
-    }
+    // async function refreshAll() {
+    //   refreshData(); // περιμένει να ολοκληρωθεί πρώτα
+    //   await refresh_data_carousel(); // μετά συνεχίζει
+    // }
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {

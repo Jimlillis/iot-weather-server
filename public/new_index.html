@@ -730,7 +730,41 @@
     //Refresh data
     async function refreshData() {
       try {
-        const response = await fetch('/data');
+        const response = await fetch('/data',{
+          credentials: 'include'
+        });
+
+      if (!response.ok){
+        const errorMessage = await response.text();
+        console.error("Σφάλμα HTTP:", response.status, errorMessage);
+
+        //μηνυμα αποτυχιας συνδεσης 
+        const successMessage = document.createElement('div');
+        successMessage.textContent = 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.';
+        successMessage.style.position = 'fixed';
+        successMessage.style.top = '20px';
+        successMessage.style.left = '50%';
+        successMessage.style.transform = 'translateX(-50%)';
+        successMessage.style.backgroundColor = '#10b981';
+        successMessage.style.color = 'white';
+        successMessage.style.padding = '0.75rem 1.5rem';
+        successMessage.style.borderRadius = '0.5rem';
+        successMessage.style.boxShadow = '0 3px 6px rgba(0, 0, 0, 0.15)';
+        successMessage.style.zIndex = '1000';
+        successMessage.style.fontWeight = '500';
+        successMessage.textContent = 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.';
+        // ... υπόλοιπο styling μηνύματος όπως το είχες
+        document.body.appendChild(successMessage);
+        setTimeout(() => {
+          successMessage.style.opacity = '0';
+          successMessage.style.transition = 'opacity 0.5s ease-out';
+          setTimeout(() => {
+            document.body.removeChild(successMessage);
+          }, 500);
+        }, 3000);
+        return;
+      }
+
         const data = await response.json();
 
         if (!Array.isArray(data) || data.length === 0) {
@@ -793,6 +827,30 @@
         }, 3000);
 
       } catch (error) {
+        // Μήνυμα σφαλματος 
+        const successMessage = document.createElement('div');
+        successMessage.textContent = 'Σφάλμα κατά την ανάκτηση των δεδομένων.';
+        successMessage.style.position = 'fixed';
+        successMessage.style.top = '20px';
+        successMessage.style.left = '50%';
+        successMessage.style.transform = 'translateX(-50%)';
+        successMessage.style.backgroundColor = '#10b981';
+        successMessage.style.color = 'white';
+        successMessage.style.padding = '0.75rem 1.5rem';
+        successMessage.style.borderRadius = '0.5rem';
+        successMessage.style.boxShadow = '0 3px 6px rgba(0, 0, 0, 0.15)';
+        successMessage.style.zIndex = '1000';
+        successMessage.style.fontWeight = '500';
+        successMessage.textContent = 'Σφάλμα κατά την ανάκτηση των δεδομένων.';
+        // ... υπόλοιπο styling μηνύματος όπως το είχες
+        document.body.appendChild(successMessage);
+        setTimeout(() => {
+          successMessage.style.opacity = '0';
+          successMessage.style.transition = 'opacity 0.5s ease-out';
+          setTimeout(() => {
+            document.body.removeChild(successMessage);
+          }, 500);
+        }, 3000);
         console.error('Σφάλμα κατά την ανανέωση δεδομένων:', error);
       }
     }
@@ -811,64 +869,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-<!-- async function fetchData() {
-  try {
-    const response = await fetch('/data', {
-      credentials: 'include'
-    });
-
-    const container = document.querySelector('.container');
-
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      console.error("Σφάλμα HTTP:", response.status, errorMessage);
-      container.innerHTML += `<div class="error-message">
-        ${response.status === 401 ? 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.' : 'Αποτυχία ανάκτησης δεδομένων.'}
-      </div>`;
-      return;
-    }
-
-    const data = await response.json();
-    console.log(data); 
-    if (!Array.isArray(data)) {
-      console.error("Αναμενόταν array αλλά ήρθε:", data);
-      container.innerHTML += `<div class="error-message">Τα δεδομένα που λήφθηκαν δεν είναι έγκυρα.</div>`;
-      return;
-    }
-
-    if (data.length === 0) {
-      container.innerHTML += `<div class="error-message">Δεν υπάρχουν διαθέσιμα δεδομένα.</div>`;
-      return;
-    }
-
-    // Πάρε το πιο πρόσφατο δείγμα για εμφάνιση στις κάρτες
-    const latest = data[data.length - 1];
-    document.querySelector('.current-value.temperature-color').textContent = latest.temperature;
-    document.querySelector('.current-value.humidity-color').textContent = latest.humidity;
-    document.querySelector('.current-value.pressure-color').textContent = latest.pressure;
-    document.querySelector('.current-value.air-quality-color').textContent = latest.air_quality;
-    //document.getElementById('last-updated').textContent = new Date(latest.timestamp).toLocaleTimeString();
-
-
-
-    // Ενημέρωση carousel
-    // updateCarousel('temperature', data.map(d => d.temperature + ' °C'));
-    // updateCarousel('humidity', data.map(d => d.humidity + ' %'));
-    // updateCarousel('pressure', data.map(d => d.pressure + ' hPa'));
-    // updateCarousel('airQuality', data.map(d => d.air_quality + ' AQI'));
-
-    // // Ενημέρωση γραφημάτων
-    // updateChart('temperature-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.temperature })));
-    // updateChart('humidity-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.humidity })));
-    // updateChart('pressure-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.pressure })));
-    // updateChart('airQuality-chart', data.map(d => ({ x: new Date(d.timestamp), y: d.air_quality })));
-
-  } catch (error) {
-    console.error("Σφάλμα JavaScript κατά το fetch:", error);
-    container.innerHTML += `<div class="error-message">Σφάλμα κατά την ανάκτηση των δεδομένων.</div>`;
-  }
-} -->

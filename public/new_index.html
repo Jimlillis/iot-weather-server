@@ -620,36 +620,41 @@
     function initializeCarousels() {
       Object.keys(sensorData).forEach(sensor => {
         const carouselEl = document.getElementById(`${sensor}-carousel`);
+        if (!carouselEl) {
+          console.warn(`Δεν βρέθηκε το carousel για τον αισθητήρα "${sensor}"`);
+          return;
+        }
+
         const data = sensorData[sensor];
         const config = sensorConfig[sensor];
-        
-        // Clear existing items if any
+
+        // Clear existing items
         carouselEl.innerHTML = '';
-        
-        // Populate carousel items
+
+        // Create items
         data.forEach((item, index) => {
           const itemEl = document.createElement('div');
           itemEl.className = `carousel-item ${index === data.length - 1 ? 'active' : ''}`;
-          
+
           const dotEl = document.createElement('div');
           dotEl.className = 'carousel-dot';
           dotEl.style.backgroundColor = config.color;
-          
+
           const timeEl = document.createElement('span');
           timeEl.className = 'carousel-time';
           timeEl.textContent = item.time;
-          
+
           const valueEl = document.createElement('span');
           valueEl.className = 'carousel-value';
           valueEl.textContent = item.value;
-          
+
           itemEl.appendChild(dotEl);
           itemEl.appendChild(timeEl);
           itemEl.appendChild(valueEl);
           carouselEl.appendChild(itemEl);
         });
-        
-        // Setup carousel navigation
+
+        // Setup navigation
         setupCarouselNavigation(sensor);
       });
     }
@@ -659,50 +664,50 @@
       const prevBtn = document.querySelector(`.prev-btn[data-sensor="${sensor}"]`);
       const nextBtn = document.querySelector(`.next-btn[data-sensor="${sensor}"]`);
       const items = carouselEl.querySelectorAll('.carousel-item');
-      const itemWidth = 100 / 5; // 5 visible items
+      const itemWidth = 100 / 5; // 5 ορατά αντικείμενα
       let currentIndex = items.length - 1;
-      
+
+      if (!carouselEl || !prevBtn || !nextBtn || items.length === 0) return;
+
       // Update carousel position
       function updateCarousel() {
-        // Update active state
         items.forEach((item, index) => {
           item.classList.toggle('active', index === currentIndex);
         });
-        
-        // Calculate translate value to center active item
-        let translateX = 0;
-        if (currentIndex > 2) {
-          translateX = (currentIndex - 2) * -itemWidth;
-        }
-        
+
+        const translateX = currentIndex > 2 ? (currentIndex - 2) * -itemWidth : 0;
         carouselEl.style.transform = `translateX(${translateX}%)`;
       }
-      
-      // Previous button click
-      prevBtn.addEventListener('click', () => {
+
+      // Καθαρίζουμε προηγούμενους listeners (αν υπήρχαν)
+      prevBtn.replaceWith(prevBtn.cloneNode(true));
+      nextBtn.replaceWith(nextBtn.cloneNode(true));
+
+      const newPrevBtn = document.querySelector(`.prev-btn[data-sensor="${sensor}"]`);
+      const newNextBtn = document.querySelector(`.next-btn[data-sensor="${sensor}"]`);
+
+      newPrevBtn.addEventListener('click', () => {
         if (currentIndex > 0) {
           currentIndex--;
           updateCarousel();
         }
       });
-      
-      // Next button click
-      nextBtn.addEventListener('click', () => {
+
+      newNextBtn.addEventListener('click', () => {
         if (currentIndex < items.length - 1) {
           currentIndex++;
           updateCarousel();
         }
       });
-      
-      // Initialize position
+
       updateCarousel();
     }
-    //refresh data to carousel (carousel is a fifo)
+
     async function refresh_data_carousel() {
       try {
         const response = await fetch('/data');
         const data = await response.json();
-        const latest = data[data.length - 1]; // τελευταία εγγραφή
+        const latest = data[data.length - 1];
 
         const newEntry = {
           time: 'Τώρα',
@@ -715,13 +720,11 @@
         };
 
         ['temperature', 'humidity', 'pressure', 'airQuality'].forEach(sensor => {
-          // Προσθήκη πρώτης μέτρησης
           sensorData[sensor].push({
             time: newEntry.time,
             value: newEntry.value[sensor]
           });
 
-          // FIFO: Κρατάμε μόνο τις 8 τελευταίες
           if (sensorData[sensor].length > 8) {
             sensorData[sensor].shift();
           }
@@ -729,12 +732,11 @@
 
         initializeCarousels();
         updateTimeDisplay();
-
-        // Μήνυμα επιτυχίας όπως πριν
       } catch (error) {
         console.error('Σφάλμα κατά την ανανέωση δεδομένων:', error);
       }
     }
+
 
     // Initialize charts
     function createChart(containerId, label, data, yMin, yMax, color) {

@@ -673,20 +673,12 @@
 
       if (!carouselEl || !prevBtn || !nextBtn || items.length === 0) return;
 
-      function updateCarousel() {
-        items.forEach((item, index) => {
-          item.classList.toggle('active', index === currentIndex);
-        });
+      // Κρατάμε τα ίδια κουμπιά και αφαιρούμε τυχόν παλιούς listeners
+      const newPrevBtn = prevBtn.cloneNode(true);
+      const newNextBtn = nextBtn.cloneNode(true);
 
-        const translateX = currentIndex > 2 ? (currentIndex - 2) * -itemWidth : 0;
-        carouselEl.style.transform = `translateX(${translateX}%)`;
-      }
-
-      prevBtn.replaceWith(prevBtn.cloneNode(true));
-      nextBtn.replaceWith(nextBtn.cloneNode(true));
-
-      const newPrevBtn = document.querySelector(`.prev-btn[data-sensor="${sensor}"]`);
-      const newNextBtn = document.querySelector(`.next-btn[data-sensor="${sensor}"]`);
+      prevBtn.replaceWith(newPrevBtn);
+      nextBtn.replaceWith(newNextBtn);
 
       newPrevBtn.addEventListener('click', () => {
         if (currentIndex > 0) {
@@ -702,8 +694,18 @@
         }
       });
 
+      function updateCarousel() {
+        items.forEach((item, index) => {
+          item.classList.toggle('active', index === currentIndex);
+        });
+
+        const translateX = currentIndex > 2 ? (currentIndex - 2) * -itemWidth : 0;
+        carouselEl.style.transform = `translateX(${translateX}%)`;
+      }
+
       updateCarousel();
     }
+
 
     // Ανανέωση με την πιο πρόσφατη μέτρηση
     async function refresh_data_carousel() {

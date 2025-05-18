@@ -434,10 +434,10 @@
         </button>
       </div>
       
-      <!-- Pressure Card -->
+      <!-- Water Level Card -->
       <div class="sensor-card">
         <div class="card-header">
-          <h2 class="card-title">Πίεση</h2>
+          <h2 class="card-title">Στάθμη Νερού</h2>
           <svg class="card-icon pressure-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 12v.01"></path>
             <path d="M19.071 4.929c-1.889-1.889-4.608-2.843-8.106-2.923C7.488 1.926 4.71 2.94 2.757 4.893 1.35 6.3.483 8.183.3 10.331c-.28 3.3.694 5.9 2.905 8.111a10.956 10.956 0 0 0 7.762 3.242c2.191.14 4.12-.361 5.776-1.397a10.902 10.902 0 0 0 4.843-5.949 11.174 11.174 0 0 0 .42-3.312c-.203-3.35-1.143-5.96-2.936-7.797Z"></path>
@@ -447,7 +447,7 @@
         
         <div class="value-container">
           <span class="current-value pressure-color">1014</span>
-          <span class="unit">hPa</span>
+          <span class="unit">%</span>
         </div>
         
         <div class="carousel">
@@ -473,7 +473,7 @@
         <div class="chart-container" id="pressure-chart"></div>
         
         <button class="control-button pressure-bg" onclick="sendControl('pressure')">
-          Ρύθμιση Πίεσης
+          Ρύθμιση Παροχής Νερού
         </button>
       </div>
       
@@ -524,7 +524,7 @@
       </div>
     </div>
     
-    <button class="refresh-button" onclick="refresh_data_carousel();">
+    <button class="refresh-button" onclick="refreshData()">
       Ανανέωση Δεδομένων
     </button>
   </div>
@@ -588,153 +588,98 @@
 
     // Generate data for each sensor
     const sensorData = {
-      temperature: [],
-      humidity: [],
-      pressure: [],
-      airQuality: []
+      temperature: generateMockData('temperature', 8),
+      humidity: generateMockData('humidity', 8),
+      pressure: generateMockData('pressure', 8),
+      airQuality: generateMockData('airQuality', 8)
     };
-    
-    //laad 8 latest values tyo carousel
-    async function loadInitialData() {
-      try {
-        const response = await fetch('/data');
-        const data = await response.json();
-
-        ['temperature', 'humidity', 'pressure', 'airQuality'].forEach(sensor => {
-          const dbField = sensor === 'airQuality' ? 'air_quality' : sensor;
-
-          sensorData[sensor] = data.map(row => ({
-            time: new Date(row.timestamp).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit'
-            }),
-            value: Number(row[dbField]?.toFixed(1))
-          })).reverse(); // παλαιότερα → νεότερα
-        });
-
-        initializeCarousels();
-      } catch (error) {
-        console.error('Σφάλμα κατά την αρχική φόρτωση δεδομένων:', error);
-      }
-    }
 
     // Initialize carousels
     function initializeCarousels() {
       Object.keys(sensorData).forEach(sensor => {
         const carouselEl = document.getElementById(`${sensor}-carousel`);
-        if (!carouselEl) {
-          console.warn(`Δεν βρέθηκε το carousel για τον αισθητήρα "${sensor}"`);
-          return;
-        }
-
         const data = sensorData[sensor];
         const config = sensorConfig[sensor];
+        
+        // Clear existing items if any
         carouselEl.innerHTML = '';
-
+        
+        // Populate carousel items
         data.forEach((item, index) => {
           const itemEl = document.createElement('div');
           itemEl.className = `carousel-item ${index === data.length - 1 ? 'active' : ''}`;
-
+          
           const dotEl = document.createElement('div');
           dotEl.className = 'carousel-dot';
           dotEl.style.backgroundColor = config.color;
-
+          
           const timeEl = document.createElement('span');
           timeEl.className = 'carousel-time';
           timeEl.textContent = item.time;
-
+          
           const valueEl = document.createElement('span');
           valueEl.className = 'carousel-value';
           valueEl.textContent = item.value;
-
+          
           itemEl.appendChild(dotEl);
           itemEl.appendChild(timeEl);
           itemEl.appendChild(valueEl);
           carouselEl.appendChild(itemEl);
         });
-
+        
+        // Set initial current value
+        const currentValueEl = document.querySelector(`.sensor-card:nth-child(${Object.keys(sensorData).indexOf(sensor) + 1}) .current-value`);
+        currentValueEl.textContent = data[data.length - 1].value;
+        
+        // Setup carousel navigation
         setupCarouselNavigation(sensor);
       });
     }
 
-    // Πλοήγηση σε carousel
+    // Setup carousel navigation
     function setupCarouselNavigation(sensor) {
       const carouselEl = document.getElementById(`${sensor}-carousel`);
       const prevBtn = document.querySelector(`.prev-btn[data-sensor="${sensor}"]`);
       const nextBtn = document.querySelector(`.next-btn[data-sensor="${sensor}"]`);
       const items = carouselEl.querySelectorAll('.carousel-item');
-      const itemWidth = 100 / 5;
+      const itemWidth = 100 / 5; // 5 visible items
       let currentIndex = items.length - 1;
-
-      if (!carouselEl || !prevBtn || !nextBtn || items.length === 0) return;
-
+      
+      // Update carousel position
       function updateCarousel() {
+        // Update active state
         items.forEach((item, index) => {
           item.classList.toggle('active', index === currentIndex);
         });
-
-        const translateX = currentIndex > 2 ? (currentIndex - 2) * -itemWidth : 0;
+        
+        // Calculate translate value to center active item
+        let translateX = 0;
+        if (currentIndex > 2) {
+          translateX = (currentIndex - 2) * -itemWidth;
+        }
+        
         carouselEl.style.transform = `translateX(${translateX}%)`;
       }
-
-      prevBtn.replaceWith(prevBtn.cloneNode(true));
-      nextBtn.replaceWith(nextBtn.cloneNode(true));
-
-      const newPrevBtn = document.querySelector(`.prev-btn[data-sensor="${sensor}"]`);
-      const newNextBtn = document.querySelector(`.next-btn[data-sensor="${sensor}"]`);
-
-      newPrevBtn.addEventListener('click', () => {
+      
+      // Previous button click
+      prevBtn.addEventListener('click', () => {
         if (currentIndex > 0) {
           currentIndex--;
           updateCarousel();
         }
       });
-
-      newNextBtn.addEventListener('click', () => {
+      
+      // Next button click
+      nextBtn.addEventListener('click', () => {
         if (currentIndex < items.length - 1) {
           currentIndex++;
           updateCarousel();
         }
       });
-
+      
+      // Initialize position
       updateCarousel();
     }
-
-    // Ανανέωση με την πιο πρόσφατη μέτρηση
-    async function refresh_data_carousel() {
-      try {
-        const response = await fetch('/data');
-        const data = await response.json();
-        const latest = data[data.length - 1];
-
-        const newEntry = {
-          time: 'Τώρα',
-          value: {
-            temperature: Number(latest.temperature.toFixed(1)),
-            humidity: Number(latest.humidity.toFixed(1)),
-            pressure: Number(latest.pressure.toFixed(1)),
-            airQuality: Number(latest.air_quality.toFixed(1))  // Προσοχή εδώ!
-          }
-        };
-
-        ['temperature', 'humidity', 'pressure', 'airQuality'].forEach(sensor => {
-          sensorData[sensor].push({
-            time: newEntry.time,
-            value: newEntry.value[sensor]
-          });
-
-          if (sensorData[sensor].length > 8) {
-            sensorData[sensor].shift();
-          }
-        });
-
-        initializeCarousels();
-        updateTimeDisplay?.(); // Προαιρετικό αν υπάρχει
-      } catch (error) {
-        console.error('Σφάλμα κατά την ανανέωση δεδομένων:', error);
-      }
-    }
-
 
     // Initialize charts
     function createChart(containerId, label, data, yMin, yMax, color) {
@@ -778,10 +723,27 @@
     createChart("#airQuality-chart", "Ποιότητα Αέρα", airQualityData, 0, 150, "#27ae60");
 
     // Send control signal
-    function sendControl(sensor) {
-      // In a real app, this would send a signal to a server or IoT device
-      alert(`Το σήμα ελέγχου στάλθηκε στον αισθητήρα ${sensor}`);
+    async function sendControl(sensor) {
+      try {
+        const response = await fetch('/command', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ type: sensor })
+        });
+
+        if (response.ok) {
+          alert(`Η εντολή στάλθηκε επιτυχώς: ${sensor}`);
+        } else {
+          alert("Σφάλμα κατά την αποστολή εντολής");
+        }
+      } catch (error) {
+        console.error("Σφάλμα:", error);
+        alert("Αποτυχία επικοινωνίας με server");
+      }
     }
+
     //Refresh data
     async function refreshData() {
       try {
@@ -910,16 +872,13 @@
       }
     }
 
-    // async function refreshAll() {
-    //   refreshData(); // περιμένει να ολοκληρωθεί πρώτα
-    //   await refresh_data_carousel(); // μετά συνεχίζει
-    // }
+    refreshData();
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
-      loadInitialData();
+      initializeCarousels();
       initializeCharts();
-
+      
       // Update time display every 60 seconds
       updateTimeDisplay();
       setInterval(updateTimeDisplay, 60000);

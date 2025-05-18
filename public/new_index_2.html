@@ -556,7 +556,7 @@
         min: 1005,
         max: 1025
       },
-      airQuality: {
+      air_quality: {
         color: '#10b981',
         baseValue: 75,
         variance: 20,
@@ -591,7 +591,7 @@
       temperature: [],
       humidity: [],
       pressure: [],
-      airQuality: []
+      air_quality: []
     };
 
     //laad 8 latest values tyo carousel
@@ -601,9 +601,7 @@
         const data = await response.json();
         const last8 = data.slice(-8); // Μόνο οι 8 τελευταίες
 
-        ['temperature', 'humidity', 'pressure', 'airQuality'].forEach(sensor => {
-          const dbField = sensor === 'airQuality' ? 'air_quality' : sensor;
-
+        ['temperature', 'humidity', 'pressure', 'air_quality'].forEach(sensor => {
           sensorData[sensor] = last8.map(row => ({
             time: new Date(row.timestamp).toLocaleTimeString([], {
               hour: '2-digit',
@@ -708,8 +706,7 @@
         const data = await response.json();
         const latest = data[data.length - 1];
 
-        ['temperature', 'humidity', 'pressure', 'airQuality'].forEach(sensor => {
-          const dbField = sensor === 'airQuality' ? 'air_quality' : sensor;
+        ['temperature', 'humidity', 'pressure', 'air_quality'].forEach(sensor => {
           const newValue = Number(latest[dbField]?.toFixed(1));
 
           const timeStr = new Date(latest.timestamp).toLocaleTimeString([], {

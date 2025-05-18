@@ -593,6 +593,14 @@
       pressure: [],
       airQuality: []
     };
+
+    //map for matching variables 
+    const sensorDomIdMap = {
+      temperature: 'temperature',
+      humidity: 'humidity',
+      pressure: 'pressure',
+      airQuality: 'air_quality' 
+    };
     
     //laad 8 latest values tyo carousel
     async function loadInitialData() {
@@ -621,8 +629,9 @@
 
     // Initialize carousels
     function initializeCarousels() {
+      const domId = sensorDomIdMap[sensor];
       Object.keys(sensorData).forEach(sensor => {
-        const carouselEl = document.getElementById(`${sensor}-carousel`);
+        const carouselEl = document.getElementById(`${domId}-carousel`);
         if (!carouselEl) {
           console.warn(`Δεν βρέθηκε το carousel για τον αισθητήρα "${sensor}"`);
           return;
@@ -706,28 +715,28 @@
       try {
         const response = await fetch('/data');
         const data = await response.json();
-        const latest = data[data.length - 1]; // τελευταία μέτρηση από βάση
+        const latest = data[data.length - 1];
 
         ['temperature', 'humidity', 'pressure', 'airQuality'].forEach(sensor => {
           const dbField = sensor === 'airQuality' ? 'air_quality' : sensor;
-
           const newValue = Number(latest[dbField]?.toFixed(1));
 
-          // προσθήκη στο τέλος
+          const timeStr = new Date(latest.timestamp).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
           sensorData[sensor].push({
-            time: 'Τώρα',
+            time: timeStr,
             value: newValue
           });
 
-          // αν περισσότερα από 8 → αφαίρεση του παλιότερου
           if (sensorData[sensor].length > 8) {
             sensorData[sensor].shift();
           }
         });
 
         initializeCarousels();
-        // Αν δεν έχεις ορίσει updateTimeDisplay, αφαίρεσέ το:
-        // updateTimeDisplay?.(); 
       } catch (error) {
         console.error('Σφάλμα κατά την ανανέωση δεδομένων:', error);
       }

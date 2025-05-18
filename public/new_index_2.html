@@ -594,6 +594,12 @@
       air_quality: []
     };
 
+    const dbFieldMap = {
+      temperature: 'temperature',
+      humidity: 'humidity',
+      pressure: 'pressure',
+      air_quality: 'air_quality'
+    };
     //laad 8 latest values tyo carousel
     async function loadInitialData() {
       try {
@@ -607,7 +613,7 @@
               hour: '2-digit',
               minute: '2-digit'
             }),
-            value: Number(row[dbField]?.toFixed(1))
+            value: Number(row[dbFieldMap[sensor]]?.toFixed(1))
           }));
         });
 
@@ -707,7 +713,7 @@
         const latest = data[data.length - 1];
 
         ['temperature', 'humidity', 'pressure', 'air_quality'].forEach(sensor => {
-          const newValue = Number(latest[dbField]?.toFixed(1));
+          const newValue = Number(latest[dbFieldMap[sensor]]?.toFixed(1));
 
           const timeStr = new Date(latest.timestamp).toLocaleTimeString([], {
             hour: '2-digit',

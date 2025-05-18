@@ -629,8 +629,8 @@
 
     // Initialize carousels
     function initializeCarousels() {
-      const domId = sensorDomIdMap[sensor];
       Object.keys(sensorData).forEach(sensor => {
+        const domId = sensorDomIdMap[sensor];
         const carouselEl = document.getElementById(`${domId}-carousel`);
         if (!carouselEl) {
           console.warn(`Δεν βρέθηκε το carousel για τον αισθητήρα "${sensor}"`);

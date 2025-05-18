@@ -524,7 +524,7 @@
       </div>
     </div>
     
-    <button class="refresh-button" onclick="refresh_data_carousel();">
+    <button class="refresh-button" onclick="refreshAll();">
       Ανανέωση Δεδομένων
     </button>
   </div>
@@ -599,19 +599,19 @@
       try {
         const response = await fetch('/data');
         const data = await response.json();
+        const last8 = data.slice(-8); // Μόνο οι 8 τελευταίες
 
         ['temperature', 'humidity', 'pressure', 'airQuality'].forEach(sensor => {
           const dbField = sensor === 'airQuality' ? 'air_quality' : sensor;
 
-          sensorData[sensor] = data.map(row => ({
+          sensorData[sensor] = last8.map(row => ({
             time: new Date(row.timestamp).toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit'
             }),
             value: Number(row[dbField]?.toFixed(1))
-          })).reverse(); // παλαιότερα → νεότερα
+          }));
         });
-        
 
         initializeCarousels();
       } catch (error) {
@@ -706,36 +706,32 @@
       try {
         const response = await fetch('/data');
         const data = await response.json();
-        const latest = data[data.length - 1];
-
-        const newEntry = {
-          time: 'Τώρα',
-          value: {
-            temperature: Number(latest.temperature.toFixed(1)),
-            humidity: Number(latest.humidity.toFixed(1)),
-            pressure: Number(latest.pressure.toFixed(1)),
-            airQuality: Number(latest.air_quality.toFixed(1))  // Προσοχή εδώ!
-          }
-        };
+        const latest = data[data.length - 1]; // τελευταία μέτρηση από βάση
 
         ['temperature', 'humidity', 'pressure', 'airQuality'].forEach(sensor => {
+          const dbField = sensor === 'airQuality' ? 'air_quality' : sensor;
+
+          const newValue = Number(latest[dbField]?.toFixed(1));
+
+          // προσθήκη στο τέλος
           sensorData[sensor].push({
-            time: newEntry.time,
-            value: newEntry.value[sensor]
+            time: 'Τώρα',
+            value: newValue
           });
 
+          // αν περισσότερα από 8 → αφαίρεση του παλιότερου
           if (sensorData[sensor].length > 8) {
             sensorData[sensor].shift();
           }
         });
 
         initializeCarousels();
-        updateTimeDisplay?.(); // Προαιρετικό αν υπάρχει
+        // Αν δεν έχεις ορίσει updateTimeDisplay, αφαίρεσέ το:
+        // updateTimeDisplay?.(); 
       } catch (error) {
         console.error('Σφάλμα κατά την ανανέωση δεδομένων:', error);
       }
     }
-
 
     // Initialize charts
     function createChart(containerId, label, data, yMin, yMax, color) {
@@ -911,10 +907,10 @@
       }
     }
 
-    // async function refreshAll() {
-    //   refreshData(); // περιμένει να ολοκληρωθεί πρώτα
-    //   await refresh_data_carousel(); // μετά συνεχίζει
-    // }
+    async function refreshAll() {
+      refreshData(); // περιμένει να ολοκληρωθεί πρώτα
+      refresh_data_carousel(); // μετά συνεχίζει
+    }
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {

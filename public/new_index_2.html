@@ -594,14 +594,6 @@
       airQuality: []
     };
 
-    //map for matching variables 
-    const sensorDomIdMap = {
-      temperature: 'temperature',
-      humidity: 'humidity',
-      pressure: 'pressure',
-      airQuality: 'airQuality' 
-    };
-    
     //laad 8 latest values tyo carousel
     async function loadInitialData() {
       try {
@@ -631,7 +623,7 @@
     function initializeCarousels() {
       Object.keys(sensorData).forEach(sensor => {
         const domId = sensorDomIdMap[sensor];
-        const carouselEl = document.getElementById(`${domId}-carousel`);
+        const carouselEl = document.getElementById(`${sensor}-carousel`);
         if (!carouselEl) {
           console.warn(`Δεν βρέθηκε το carousel για τον αισθητήρα "${sensor}"`);
           return;

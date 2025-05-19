@@ -566,6 +566,29 @@
       }
     };
 
+    let cachedSensorData = [];
+    function showMessage(text, isSuccess = true) {
+      const msg = document.createElement('div');
+      msg.textContent = text;
+      msg.style.position = 'fixed';
+      msg.style.top = '20px';
+      msg.style.left = '50%';
+      msg.style.transform = 'translateX(-50%)';
+      msg.style.backgroundColor = isSuccess ? '#10b981' : '#ef4444';
+      msg.style.color = 'white';
+      msg.style.padding = '0.75rem 1.5rem';
+      msg.style.borderRadius = '0.5rem';
+      msg.style.boxShadow = '0 3px 6px rgba(0, 0, 0, 0.15)';
+      msg.style.zIndex = '1000';
+      msg.style.fontWeight = '500';
+      document.body.appendChild(msg);
+      setTimeout(() => {
+        msg.style.opacity = '0';
+        msg.style.transition = 'opacity 0.5s ease-out';
+        setTimeout(() => document.body.removeChild(msg), 500);
+      }, 3000);
+    }
+
     async function fetchSensorDataAndCache() {
       try {
         const response = await fetch('/data', { credentials: 'include' });
@@ -847,7 +870,7 @@
         });
 
         // Ενημέρωση current values στο frontend
-        const latest = data[data.length - 1];
+        const latest = cachedSensorData[cachedSensorData.length - 1];
         document.querySelector('.temperature-color.current-value').textContent = latest.temperature.toFixed(1);
         document.querySelector('.humidity-color.current-value').textContent = latest.humidity.toFixed(1);
         document.querySelector('.pressure-color.current-value').textContent = latest.pressure.toFixed(0);
@@ -912,7 +935,7 @@
     }
 
     async function refreshAll() {
-      fetchSensorDataAndCache();
+      await fetchSensorDataAndCache();
       refreshData(); // περιμένει να ολοκληρωθεί πρώτα
       refresh_data_carousel(); // μετά συνεχίζει
     }

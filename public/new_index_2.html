@@ -817,36 +817,6 @@
     //Refresh data
     async function refreshData() {
       try {
-      if (!response.ok){
-        const errorMessage = await response.text();
-        console.error("Σφάλμα HTTP:", response.status, errorMessage);
-
-        //μηνυμα αποτυχιας συνδεσης 
-        const successMessage = document.createElement('div');
-        successMessage.textContent = 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.';
-        successMessage.style.position = 'fixed';
-        successMessage.style.top = '20px';
-        successMessage.style.left = '50%';
-        successMessage.style.transform = 'translateX(-50%)';
-        successMessage.style.backgroundColor = '#10b981';
-        successMessage.style.color = 'white';
-        successMessage.style.padding = '0.75rem 1.5rem';
-        successMessage.style.borderRadius = '0.5rem';
-        successMessage.style.boxShadow = '0 3px 6px rgba(0, 0, 0, 0.15)';
-        successMessage.style.zIndex = '1000';
-        successMessage.style.fontWeight = '500';
-        successMessage.textContent = 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.';
-        // ... υπόλοιπο styling μηνύματος όπως το είχες
-        document.body.appendChild(successMessage);
-        setTimeout(() => {
-          successMessage.style.opacity = '0';
-          successMessage.style.transition = 'opacity 0.5s ease-out';
-          setTimeout(() => {
-            document.body.removeChild(successMessage);
-          }, 500);
-        }, 3000);
-        return;
-      }
 
         const data = cachedSensorData;
 

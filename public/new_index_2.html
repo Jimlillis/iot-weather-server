@@ -568,24 +568,36 @@
 
     // Generate mock data
     function generateMockData(sensorType, count) {
-      const config = sensorConfig[sensorType];
-      const data = [];
-      const now = new Date();
-      
-      for (let i = count - 1; i >= 0; i--) {
-        const time = new Date(now.getTime() - i * 3600000);
-        const value = config.baseValue + 
-          (Math.random() * config.variance * 2 - config.variance);
-        
-        data.push({
-          time: i === 0 ? 'Τώρα' : `${time.getHours()}:00`,
-          value: Number(value.toFixed(1))
-        });
-      }
-      
-      return data;
-    }
+        const config = sensorConfig[sensorType];
+        const data = [];
+        const now = new Date();
 
+        for (let i = count - 1; i >= 0; i--) {
+            const time = new Date(now.getTime() - i * 3600000);
+            let value;
+
+            if (sensorType === 'pressure') {
+                // Generate a random value between 0 and 1
+                const randomFactor = Math.random();
+                // Scale and shift the random value to be within the range [20, 100]
+                value = 20 + (randomFactor * 80); // 100 - 20 = 80
+            } else if (config) {
+                value = config.baseValue +
+                        (Math.random() * config.variance * 2 - config.variance);
+            } else {
+                // Handle cases where the sensorType is not 'pressure' and not found in sensorConfig
+                console.warn(`Configuration not found for sensor type: ${sensorType}. Returning NaN.`);
+                value = NaN;
+            }
+
+            data.push({
+                time: i === 0 ? 'Τώρα' : `${time.getHours()}:00`,
+                value: Number(value.toFixed(1))
+            });
+        }
+
+        return data;
+    }
     // Generate data for each sensor
     const sensorData = {
       temperature: generateMockData('temperature', 8),

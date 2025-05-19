@@ -566,24 +566,32 @@
       }
     };
 
-    // Generate mock data
-    function generateMockData(sensorType, count) {
-      const config = sensorConfig[sensorType];
-      const data = [];
-      const now = new Date();
-      
-      for (let i = count - 1; i >= 0; i--) {
-        const time = new Date(now.getTime() - i * 3600000);
-        const value = config.baseValue + 
-          (Math.random() * config.variance * 2 - config.variance);
-        
-        data.push({
-          time: i === 0 ? 'Τώρα' : `${time.getHours()}:00`,
-          value: Number(value.toFixed(1))
-        });
+    async function fetchSensorDataAndCache() {
+      try {
+        const response = await fetch('/data', { credentials: 'include' });
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Σφάλμα HTTP:', response.status, errorText);
+          showMessage('Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.', false);
+          cachedSensorData = []; // Καθαρισμός σε αποτυχία
+          return;
+        }
+
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          console.warn('Τα δεδομένα δεν είναι πίνακας.');
+          cachedSensorData = [];
+          return;
+        }
+
+        cachedSensorData = data; // Cache εδώ
+        showMessage('Τα δεδομένα ενημερώθηκαν επιτυχώς!', true);
+
+      } catch (error) {
+        console.error('Σφάλμα κατά το fetch των δεδομένων:', error);
+        cachedSensorData = [];
+        showMessage('Σφάλμα κατά την ανάκτηση των δεδομένων.', false);
       }
-      
-      return data;
     }
 
     // Generate data for each sensor
@@ -600,27 +608,25 @@
       pressure: 'pressure',
       air_quality: 'air_quality'
     };
+
     //laad 8 latest values tyo carousel
-    async function loadInitialData() {
-      try {
-        const response = await fetch('/data');
-        const data = await response.json();
-        const last8 = data.slice(-8); // Μόνο οι 8 τελευταίες
+    function loadInitialData() {
+      const data = cachedSensorData;
+      if (!data || data.length === 0) return;
 
-        ['temperature', 'humidity', 'pressure', 'air_quality'].forEach(sensor => {
-          sensorData[sensor] = last8.map(row => ({
-            time: new Date(row.timestamp).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit'
-            }),
-            value: Number(row[dbFieldMap[sensor]]?.toFixed(1))
-          }));
-        });
+      const last8 = data.slice(-8);
 
-        initializeCarousels();
-      } catch (error) {
-        console.error('Σφάλμα κατά την αρχική φόρτωση δεδομένων:', error);
-      }
+      ['temperature', 'humidity', 'pressure', 'air_quality'].forEach(sensor => {
+        sensorData[sensor] = last8.map(row => ({
+          time: new Date(row.timestamp).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          value: Number(row[dbFieldMap[sensor]]?.toFixed(1))
+        }));
+      });
+
+      initializeCarousels();
     }
 
     // Initialize carousels
@@ -711,8 +717,8 @@
     // Ανανέωση με την πιο πρόσφατη μέτρηση
     async function refresh_data_carousel() {
       try {
-        const response = await fetch('/data');
-        const data = await response.json();
+        const data = cachedSensorData;
+        if (!data || data.length === 0) return;
         const latest = data[data.length - 1];
 
         ['temperature', 'humidity', 'pressure', 'air_quality'].forEach(sensor => {
@@ -788,10 +794,6 @@
     //Refresh data
     async function refreshData() {
       try {
-        const response = await fetch('/data',{
-          credentials: 'include'
-        });
-
       if (!response.ok){
         const errorMessage = await response.text();
         console.error("Σφάλμα HTTP:", response.status, errorMessage);
@@ -823,7 +825,7 @@
         return;
       }
 
-        const data = await response.json();
+        const data = cachedSensorData;
 
         if (!Array.isArray(data) || data.length === 0) {
           console.warn('Δεν επιστράφηκαν δεδομένα.');
@@ -854,10 +856,6 @@
         if (latest.timestamp) {
           document.getElementById('last-updated').textContent = new Date(latest.timestamp).toLocaleString('el-GR');
         }
-
-        // Ανανεώνουμε γραφήματα / carousels
-        //initializeCarousels();
-        //initializeCharts();
 
         // Μήνυμα επιτυχίας
         const successMessage = document.createElement('div');
@@ -914,12 +912,14 @@
     }
 
     async function refreshAll() {
+      fetchSensorDataAndCache();
       refreshData(); // περιμένει να ολοκληρωθεί πρώτα
       refresh_data_carousel(); // μετά συνεχίζει
     }
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
+      fetchSensorDataAndCache();
       loadInitialData();
       //initializeCharts();
 

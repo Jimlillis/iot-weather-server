@@ -608,7 +608,6 @@
           }
 
           const data = await response.json();
-          console.log(data);
 
           // Έλεγχος ότι περιέχει όλα τα πεδία
           if (!Array.isArray(data)) {
@@ -639,10 +638,6 @@
           });
 
           showMessage('Τα δεδομένα ενημερώθηκαν επιτυχώς!', true);
-          console.log(sensorData.temperature);
-          console.log(sensorData.humidity);
-          console.log(sensorData.pressure);
-          console.log(sensorData.air_quality);
 
       } catch (error) {
           console.error('Σφάλμα κατά το fetch των δεδομένων:', error);
@@ -850,7 +845,7 @@
         }
 
         // Ενημέρωση current values στο frontend
-        const latest = cachedSensorData[cachedSensorData.length - 1];
+        const latest = sensorData[sensorData.length - 1];
         document.querySelector('.temperature-color.current-value').textContent = latest.temperature.toFixed(1);
         document.querySelector('.humidity-color.current-value').textContent = latest.humidity.toFixed(1);
         document.querySelector('.pressure-color.current-value').textContent = latest.pressure.toFixed(0);

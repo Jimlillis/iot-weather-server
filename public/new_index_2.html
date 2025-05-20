@@ -566,7 +566,6 @@
       }
     };
 
-    let cachedSensorData = [];
     function showMessage(text, isSuccess = true) {
       const msg = document.createElement('div');
       msg.textContent = text;
@@ -588,36 +587,7 @@
         setTimeout(() => document.body.removeChild(msg), 500);
       }, 3000);
     }
-
-    async function fetchSensorDataAndCache() {
-      try {
-        const response = await fetch('/data', { credentials: 'include' });
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Σφάλμα HTTP:', response.status, errorText);
-          showMessage('Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.', false);
-          cachedSensorData = []; // Καθαρισμός σε αποτυχία
-          return;
-        }
-
-        const data = await response.json();
-        if (!Array.isArray(data)) {
-          console.warn('Τα δεδομένα δεν είναι πίνακας.');
-          cachedSensorData = [];
-          return;
-        }
-
-        cachedSensorData = data; // Cache εδώ
-        showMessage('Τα δεδομένα ενημερώθηκαν επιτυχώς!', true);
-
-      } catch (error) {
-        console.error('Σφάλμα κατά το fetch των δεδομένων:', error);
-        cachedSensorData = [];
-        showMessage('Σφάλμα κατά την ανάκτηση των δεδομένων.', false);
-      }
-    }
-
-    // Generate data for each sensor
+    
     const sensorData = {
       temperature: [],
       humidity: [],
@@ -625,12 +595,47 @@
       air_quality: []
     };
 
-    const dbFieldMap = {
-      temperature: 'temperature',
-      humidity: 'humidity',
-      pressure: 'pressure',
-      air_quality: 'air_quality'
-    };
+    // Φέρνει τις τελευταίες 8 εγγραφές από το backend και ενημερώνει την sensorData
+    async function fetchSensorDataAndCache() {
+      try {
+        const response = await fetch('/data/latest?limit=8', { credentials: 'include' });
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Σφάλμα HTTP:', response.status, errorText);
+          showMessage('Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.', false);
+          clearSensorData();
+          return;
+        }
+
+        const data = await response.json();
+
+        // Έλεγχος ότι περιέχει όλα τα πεδία
+        const keys = ['temperature', 'humidity', 'pressure', 'air_quality'];
+        for (const key of keys) {
+          if (!Array.isArray(data[key])) {
+            console.warn(`Το πεδίο ${key} δεν είναι πίνακας ή απουσιάζει.`);
+            sensorData[key] = [];
+            continue;
+          }
+          // Φυλάσσουμε μόνο τα τελευταία 8 (ή λιγότερα) στοιχεία
+          sensorData[key] = data[key].slice(0, 8);
+        }
+
+        showMessage('Τα δεδομένα ενημερώθηκαν επιτυχώς!', true);
+
+      } catch (error) {
+        console.error('Σφάλμα κατά το fetch των δεδομένων:', error);
+        clearSensorData();
+        showMessage('Σφάλμα κατά την ανάκτηση των δεδομένων.', false);
+      }
+    }
+
+    // Καθαρίζει τη δομή sensorData
+    function clearSensorData() {
+      for (const key in sensorData) {
+        sensorData[key] = [];
+      }
+    }
 
     //laad 8 latest values tyo carousel
     function loadInitialData() {
@@ -851,56 +856,11 @@
         }
 
         // Μήνυμα επιτυχίας
-        const successMessage = document.createElement('div');
-        successMessage.textContent = 'Τα δεδομένα ενημερώθηκαν επιτυχώς!';
-        successMessage.style.position = 'fixed';
-        successMessage.style.top = '20px';
-        successMessage.style.left = '50%';
-        successMessage.style.transform = 'translateX(-50%)';
-        successMessage.style.backgroundColor = '#10b981';
-        successMessage.style.color = 'white';
-        successMessage.style.padding = '0.75rem 1.5rem';
-        successMessage.style.borderRadius = '0.5rem';
-        successMessage.style.boxShadow = '0 3px 6px rgba(0, 0, 0, 0.15)';
-        successMessage.style.zIndex = '1000';
-        successMessage.style.fontWeight = '500';
-        successMessage.textContent = 'Τα δεδομένα ενημερώθηκαν επιτυχώς!';
-        // ... υπόλοιπο styling μηνύματος όπως το είχες
-        document.body.appendChild(successMessage);
-        setTimeout(() => {
-          successMessage.style.opacity = '0';
-          successMessage.style.transition = 'opacity 0.5s ease-out';
-          setTimeout(() => {
-            document.body.removeChild(successMessage);
-          }, 500);
-        }, 3000);
-
+        showMessage('Επιτυχής ανανέωση δεδομένων', isSuccess = true);
+        
       } catch (error) {
         // Μήνυμα σφαλματος 
-        const successMessage = document.createElement('div');
-        successMessage.textContent = 'Σφάλμα κατά την ανάκτηση των δεδομένων.';
-        successMessage.style.position = 'fixed';
-        successMessage.style.top = '20px';
-        successMessage.style.left = '50%';
-        successMessage.style.transform = 'translateX(-50%)';
-        successMessage.style.backgroundColor = '#10b981';
-        successMessage.style.color = 'white';
-        successMessage.style.padding = '0.75rem 1.5rem';
-        successMessage.style.borderRadius = '0.5rem';
-        successMessage.style.boxShadow = '0 3px 6px rgba(0, 0, 0, 0.15)';
-        successMessage.style.zIndex = '1000';
-        successMessage.style.fontWeight = '500';
-        successMessage.textContent = 'Σφάλμα κατά την ανάκτηση των δεδομένων.';
-        // ... υπόλοιπο styling μηνύματος όπως το είχες
-        document.body.appendChild(successMessage);
-        setTimeout(() => {
-          successMessage.style.opacity = '0';
-          successMessage.style.transition = 'opacity 0.5s ease-out';
-          setTimeout(() => {
-            document.body.removeChild(successMessage);
-          }, 500);
-        }, 3000);
-        console.error('Σφάλμα κατά την ανανέωση δεδομένων:', error);
+        showMessage('Σφάλμα κατά την ανανέωση δεδομένων', isSuccess = false);
       }
     }
 

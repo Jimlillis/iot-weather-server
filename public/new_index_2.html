@@ -598,33 +598,58 @@
     // Φέρνει τις τελευταίες 8 εγγραφές από το backend και ενημερώνει την sensorData
     async function fetchSensorDataAndCache() {
       try {
-        const response = await fetch('/data', { credentials: 'include' });
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Σφάλμα HTTP:', response.status, errorText);
-          showMessage('Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.', false);
-          clearSensorData();
-          return;
-        }
+          const response = await fetch('/data', { credentials: 'include' });
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Σφάλμα HTTP:', response.status, errorText);
+            showMessage('Δεν έχετε συνδεθεί. Παρακαλώ κάντε login.', false);
+            clearSensorData();
+            return;
+          }
 
-        const data = await response.json();
-        console.log(data);
+          const data = await response.json();
+          console.log(data);
 
-        // Έλεγχος ότι περιέχει όλα τα πεδία
-        if (!Array.isArray(data)) {
-          console.warn('Τα δεδομένα δεν είναι πίνακας.');
-          cachedSensorData = [];
-          return;
-        }
+          // Έλεγχος ότι περιέχει όλα τα πεδία
+          if (!Array.isArray(data)) {
+            console.warn('Τα δεδομένα δεν είναι πίνακας.');
+            return;
+          }
 
-        showMessage('Τα δεδομένα ενημερώθηκαν επιτυχώς!', true);
+          // Εκκαθάριση sensorData
+          sensorData.temperature = [];
+          sensorData.humidity = [];
+          sensorData.pressure = [];
+          sensorData.air_quality = [];
+
+          // Συμπλήρωσε εδώ
+          data.forEach(item => {
+            if (item.temperature !== undefined) {
+                sensorData.temperature.push(item.temperature);
+            }
+            if (item.humidity !== undefined) {
+                sensorData.humidity.push(item.humidity);
+            }
+            if (item.pressure !== undefined) {
+                sensorData.pressure.push(item.pressure);
+            }
+            if (item.air_quality !== undefined) {
+                sensorData.air_quality.push(item.air_quality);
+            }
+          });
+
+          showMessage('Τα δεδομένα ενημερώθηκαν επιτυχώς!', true);
+          console.log(sensorData.temperature);
+          console.log(sensorData.humidity);
+          console.log(sensorData.pressure);
+          console.log(sensorData.air_quality);
 
       } catch (error) {
-        console.error('Σφάλμα κατά το fetch των δεδομένων:', error);
-        clearSensorData();
-        showMessage('Σφάλμα κατά την ανάκτηση των δεδομένων.', false);
+          console.error('Σφάλμα κατά το fetch των δεδομένων:', error);
+          clearSensorData();
+          showMessage('Σφάλμα κατά την ανάκτηση των δεδομένων.', false);
       }
-    }
+  }
 
     // Καθαρίζει τη δομή sensorData
     function clearSensorData() {
@@ -819,26 +844,10 @@
     async function refreshData() {
       try {
 
-        const data = cachedSensorData;
-
         if (!Array.isArray(data) || data.length === 0) {
           console.warn('Δεν επιστράφηκαν δεδομένα.');
           return;
         }
-
-        // Εκκαθάριση sensorData
-        sensorData.temperature = [];
-        sensorData.humidity = [];
-        sensorData.pressure = [];
-        sensorData.air_quality = [];
-
-        // Φόρτωση πραγματικών δεδομένων
-        data.reverse().forEach(entry => {
-          sensorData.temperature.push(entry.temperature);
-          sensorData.humidity.push(entry.humidity);
-          sensorData.pressure.push(entry.pressure);
-          sensorData.air_quality.push(entry.air_quality);
-        });
 
         // Ενημέρωση current values στο frontend
         const latest = cachedSensorData[cachedSensorData.length - 1];
@@ -863,7 +872,7 @@
     async function refreshAll() {
       await fetchSensorDataAndCache();
       refreshData(); // περιμένει να ολοκληρωθεί πρώτα
-      refresh_data_carousel(); // μετά συνεχίζει
+      //refresh_data_carousel(); // μετά συνεχίζει
     }
 
     // Initialize

@@ -611,15 +611,10 @@
         console.log(data);
 
         // Έλεγχος ότι περιέχει όλα τα πεδία
-        const keys = ['temperature', 'humidity', 'pressure', 'air_quality'];
-        for (const key of keys) {
-          if (!Array.isArray(data[key])) {
-            console.warn(`Το πεδίο ${key} δεν είναι πίνακας ή απουσιάζει.`);
-            sensorData[key] = [];
-            continue;
-          }
-          // Φυλάσσουμε μόνο τα τελευταία 8 (ή λιγότερα) στοιχεία
-          sensorData[key] = data[key].slice(0, 8);
+        if (!Array.isArray(data)) {
+          console.warn('Τα δεδομένα δεν είναι πίνακας.');
+          cachedSensorData = [];
+          return;
         }
 
         showMessage('Τα δεδομένα ενημερώθηκαν επιτυχώς!', true);

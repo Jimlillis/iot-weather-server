@@ -838,28 +838,36 @@
     //Refresh data
     async function refreshData() {
       try {
+          // Έλεγχος αν υπάρχουν δεδομένα
+          if (sensorData.temperature.length === 0) {
+              showMessage('Δεν υπάρχουν διαθέσιμα δεδομένα για εμφάνιση.', false);
+              return;
+          }
 
-        // Ενημέρωση current values στο frontend
-        const latest = sensorData[sensorData.length - 1];
-        document.querySelector('.temperature-color.current-value').textContent = latest.temperature.toFixed(1);
-        document.querySelector('.humidity-color.current-value').textContent = latest.humidity.toFixed(1);
-        document.querySelector('.pressure-color.current-value').textContent = latest.pressure.toFixed(0);
-        document.querySelector('.air-quality-color.current-value').textContent = latest.air_quality.toFixed(0);
+          // Λήψη των τελευταίων τιμών από κάθε αισθητήρα
+          const latestTemperature = sensorData.temperature[sensorData.temperature.length - 1];
+          const latestHumidity = sensorData.humidity[sensorData.humidity.length - 1];
+          const latestPressure = sensorData.pressure[sensorData.pressure.length - 1];
+          const latestAirQuality = sensorData.air_quality[sensorData.air_quality.length - 1];
 
-        console.log(latest.temperature);
+          // Ενημέρωση current values στο frontend
+          document.querySelector('.temperature-color.current-value').textContent = latestTemperature !== undefined ? latestTemperature.toFixed(1) : '-';
+          document.querySelector('.humidity-color.current-value').textContent = latestHumidity !== undefined ? latestHumidity.toFixed(1) : '-';
+          document.querySelector('.pressure-color.current-value').textContent = latestPressure !== undefined ? latestPressure.toFixed(0) : '-';
+          document.querySelector('.air-quality-color.current-value').textContent = latestAirQuality !== undefined ? latestAirQuality.toFixed(0) : '-';
 
-        if (latest.timestamp) {
-          document.getElementById('last-updated').textContent = new Date(latest.timestamp).toLocaleString('el-GR');
-        }
+          console.log(latestTemperature);
 
-        // Μήνυμα επιτυχίας
-        showMessage('Επιτυχής ανανέωση δεδομένων', isSuccess = true);
-        
+          // Μήνυμα επιτυχίας
+          showMessage('Επιτυχής ανανέωση δεδομένων', true);
+
       } catch (error) {
-        // Μήνυμα σφαλματος 
-        showMessage('Σφάλμα κατά την ανανέωση δεδομένων', isSuccess = false);
+          // Μήνυμα σφάλματος
+          console.error('Σφάλμα κατά την ανανέωση δεδομένων:', error);
+          showMessage('Σφάλμα κατά την ανανέωση δεδομένων', false);
       }
-    }
+  }
+
 
     async function refreshAll() {
       await fetchSensorDataAndCache();

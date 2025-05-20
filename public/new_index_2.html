@@ -637,6 +637,12 @@
             }
           });
 
+          // Αντιστροφή των πινάκων για να είναι η πιο πρόσφατη τιμή στην τελευταία θέση
+          sensorData.temperature.reverse();
+          sensorData.humidity.reverse();
+          sensorData.pressure.reverse();
+          sensorData.air_quality.reverse();
+
           showMessage('Τα δεδομένα ενημερώθηκαν επιτυχώς!', true);
 
       } catch (error) {

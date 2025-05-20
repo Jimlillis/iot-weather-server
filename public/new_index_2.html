@@ -598,7 +598,7 @@
     // Φέρνει τις τελευταίες 8 εγγραφές από το backend και ενημερώνει την sensorData
     async function fetchSensorDataAndCache() {
       try {
-        const response = await fetch('/data/latest?limit=8', { credentials: 'include' });
+        const response = await fetch('/data', { credentials: 'include' });
         if (!response.ok) {
           const errorText = await response.text();
           console.error('Σφάλμα HTTP:', response.status, errorText);
@@ -608,6 +608,7 @@
         }
 
         const data = await response.json();
+        console.log(data);
 
         // Έλεγχος ότι περιέχει όλα τα πεδία
         const keys = ['temperature', 'humidity', 'pressure', 'air_quality'];

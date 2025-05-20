@@ -107,10 +107,10 @@ app.post('/login', (req, res) => {
 // Προστατευμένο data route
 app.get('/data', async (req, res) => {
   if (!req.session.loggedIn) {
-    return res.status(401).json({ message: 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login πρώτα.' });
+  return res.status(401).json({ message: 'Δεν έχετε συνδεθεί. Παρακαλώ κάντε login πρώτα.' });
   }
   try {
-    const result = await client.query('SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 50');
+    const result = await client.query('SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 8');
     res.json(result.rows);
     console.log("Session at /data:", req.session);
   } catch (err) {
@@ -118,6 +118,7 @@ app.get('/data', async (req, res) => {
     res.status(500).send('Error retrieving data');
   }
 });
+
 
 // Logout
 app.post('/logout', (req, res) => {

@@ -661,7 +661,6 @@
 
     //laad 8 latest values tyo carousel
     function loadInitialData() {
-      const data = cachedSensorData;
       if (!data || data.length === 0) return;
 
       const last8 = data.slice(-8);
@@ -672,7 +671,7 @@
             hour: '2-digit',
             minute: '2-digit'
           }),
-          value: Number(row[dbFieldMap[sensor]]?.toFixed(1))
+          value: Number(row[sensorData[sensor]]?.toFixed(1))
         }));
       });
 
@@ -863,6 +862,12 @@
           document.querySelector('.air-quality-color.current-value').textContent = latestAirQuality !== undefined ? latestAirQuality.toFixed(0) : '-';
 
           console.log(latestTemperature);
+
+          if (sensorData.temperature.length > 0 && sensorData.temperature[sensorData.temperature.length - 1].timestamp) {
+                document.getElementById('last-updated').textContent = new Date(sensorData.temperature[sensorData.temperature.length - 1].timestamp).toLocaleString('el-GR');
+            } else {
+                document.getElementById('last-updated').textContent = 'Δεν υπάρχει διαθέσιμη ώρα.';
+            }
 
           // Μήνυμα επιτυχίας
           showMessage('Επιτυχής ανανέωση δεδομένων', true);

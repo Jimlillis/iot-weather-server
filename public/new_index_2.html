@@ -691,12 +691,12 @@
                   valueEl.textContent = `${value.toFixed(config.unit === '°C' || config.unit === '%' ? 1 : 0)} ${config.unit}`;
 
                   itemEl.appendChild(dotEl);
-                  itemEl.appendChild(timeEl);
+                  //itemEl.appendChild(timeEl);
                   itemEl.appendChild(valueEl);
                   carouselEl.appendChild(itemEl);
                   console.log("initializeCarousels:", sensor, data);
               });
-              
+
               setupCarouselNavigation(sensor);
 
 

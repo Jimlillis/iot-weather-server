@@ -686,15 +686,6 @@
                   dotEl.className = 'carousel-dot';
                   dotEl.style.backgroundColor = config.color;
 
-                  const timeEl = document.createElement('span');
-                  timeEl.className = 'carousel-time';
-                  // Αν υποθέσουμε ότι κάθε στοιχείο στον πίνακα 'data' είναι απλά μια τιμή,
-                  // δεν υπάρχει άμεσα διαθέσιμο 'time'.
-                  // Αν το timestamp αποθηκεύεται μαζί με την τιμή (όπως συζητήσαμε πριν),
-                  // θα πρέπει να το προσπελάσεις:
-                  timeEl.textContent = new Date(value.timestamp).toLocaleTimeString('el-GR');
-                  timeEl.textContent = `Τιμή ${data.length - index}`; // Ενδεικτική ένδειξη σειράς (πιο πρόσφατη -> 1)
-
                   const valueEl = document.createElement('span');
                   valueEl.className = 'carousel-value';
                   valueEl.textContent = `${value.toFixed(config.unit === '°C' || config.unit === '%' ? 1 : 0)} ${config.unit}`;
@@ -705,6 +696,9 @@
                   carouselEl.appendChild(itemEl);
                   console.log("initializeCarousels:", sensor, data);
               });
+              
+              setupCarouselNavigation(sensor);
+
 
           } else {
               console.warn(`Δεν βρέθηκε το carousel container ή δεν υπάρχουν δεδομένα για τον αισθητήρα "${sensor}"`);
@@ -876,6 +870,7 @@
     async function refreshAll() {
       await fetchSensorDataAndCache();
       refreshData(); // περιμένει να ολοκληρωθεί πρώτα
+      loadInitialData(sensorData);
       //refresh_data_carousel(); // μετά συνεχίζει
     }
 

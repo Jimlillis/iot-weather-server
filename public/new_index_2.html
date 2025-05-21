@@ -879,13 +879,12 @@
       //refresh_data_carousel(); // μετά συνεχίζει
     }
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      fetchSensorDataAndCache();
-      loadInitialData();
-      //initializeCharts();
-
+    // Initialize app 
+    document.addEventListener('DOMContentLoaded', async () => {
+      await fetchSensorDataAndCache(); // Περίμενε να ολοκληρωθεί η fetchSensorDataAndCache
+      loadInitialData(sensorData);   // Κάλεσε την loadInitialData αφού έχουν φορτωθεί τα δεδομένα
     });
+
   </script>
 </body>
 </html>

@@ -659,65 +659,58 @@
       }
     }
 
-    //laad 8 latest values tyo carousel
-    function loadInitialData() {
-      if (!data || data.length === 0) return;
-
-      const last8 = data.slice(-8);
-
-      ['temperature', 'humidity', 'pressure', 'air_quality'].forEach(sensor => {
-        sensorData[sensor] = last8.map(row => ({
-          time: new Date(row.timestamp).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
-          }),
-          value: Number(row[sensorData[sensor]]?.toFixed(1))
-        }));
-      });
-
-      initializeCarousels();
-    }
-
     // Initialize carousels
-    function initializeCarousels() {
-      Object.keys(sensorData).forEach(sensor => {
-        const carouselEl = document.getElementById(`${sensor}-carousel`);
-        if (!carouselEl) {
-          console.warn(`Δεν βρέθηκε το carousel για τον αισθητήρα "${sensor}"`);
-          return;
-        }
+    function loadInitialData(sensorData) {
+      const sensors = ['temperature', 'humidity', 'pressure', 'air_quality'];
+      const carouselContainers = {
+          temperature: document.getElementById('temperature-carousel'), // Αντικατάστησε με το ID του container για θερμοκρασία
+          humidity: document.getElementById('humidity-carousel'),       // Αντικατάστησε με το ID του container για υγρασία
+          pressure: document.getElementById('pressure-carousel'),       // Αντικατάστησε με το ID του container για πίεση
+          air_quality: document.getElementById('air_quality-carousel')   // Αντικατάστησε με το ID του container για ποιότητα αέρα
+      };
 
-        const data = sensorData[sensor];
-        const config = sensorConfig[sensor];
-        carouselEl.innerHTML = '';
+      sensors.forEach(sensor => {
+          const data = sensorData[sensor];
+          const carouselEl = carouselContainers[sensor];
+          const config = sensorConfig[sensor];
 
-        data.forEach((item, index) => {
-          const itemEl = document.createElement('div');
-          itemEl.className = `carousel-item ${index === data.length - 1 ? 'active' : ''}`;
+          if (carouselEl && Array.isArray(data)) {
+              // Clear existing content
+              carouselEl.innerHTML = '';
 
-          const dotEl = document.createElement('div');
-          dotEl.className = 'carousel-dot';
-          dotEl.style.backgroundColor = config.color;
+              data.forEach((value, index) => {
+                  const itemEl = document.createElement('div');
+                  itemEl.className = `carousel-item ${index === data.length - 1 ? 'active' : ''}`; // Η πιο πρόσφατη είναι η τελευταία μετά το reverse()
 
-          const timeEl = document.createElement('span');
-          timeEl.className = 'carousel-time';
-          timeEl.textContent = item.time;
+                  const dotEl = document.createElement('div');
+                  dotEl.className = 'carousel-dot';
+                  dotEl.style.backgroundColor = config.color;
 
-          const valueEl = document.createElement('span');
-          valueEl.className = 'carousel-value';
-          valueEl.textContent = item.value;
+                  const timeEl = document.createElement('span');
+                  timeEl.className = 'carousel-time';
+                  // Αν υποθέσουμε ότι κάθε στοιχείο στον πίνακα 'data' είναι απλά μια τιμή,
+                  // δεν υπάρχει άμεσα διαθέσιμο 'time'.
+                  // Αν το timestamp αποθηκεύεται μαζί με την τιμή (όπως συζητήσαμε πριν),
+                  // θα πρέπει να το προσπελάσεις:
+                  timeEl.textContent = new Date(value.timestamp).toLocaleTimeString('el-GR');
+                  timeEl.textContent = `Τιμή ${data.length - index}`; // Ενδεικτική ένδειξη σειράς (πιο πρόσφατη -> 1)
 
-          itemEl.appendChild(dotEl);
-          itemEl.appendChild(timeEl);
-          itemEl.appendChild(valueEl);
-          carouselEl.appendChild(itemEl);
-          console.log("initializeCarousels:", sensor, sensorData[sensor]);
-        });
+                  const valueEl = document.createElement('span');
+                  valueEl.className = 'carousel-value';
+                  valueEl.textContent = `${value.toFixed(config.unit === '°C' || config.unit === '%' ? 1 : 0)} ${config.unit}`;
 
-        setupCarouselNavigation(sensor);
+                  itemEl.appendChild(dotEl);
+                  itemEl.appendChild(timeEl);
+                  itemEl.appendChild(valueEl);
+                  carouselEl.appendChild(itemEl);
+                  console.log("initializeCarousels:", sensor, data);
+              });
+
+          } else {
+              console.warn(`Δεν βρέθηκε το carousel container ή δεν υπάρχουν δεδομένα για τον αισθητήρα "${sensor}"`);
+          }
       });
-    }
-
+  }
     // Πλοήγηση σε carousel
     function setupCarouselNavigation(sensor) {
       const carouselEl = document.getElementById(`${sensor}-carousel`);
@@ -889,12 +882,9 @@
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       fetchSensorDataAndCache();
-      ///loadInitialData();
+      loadInitialData();
       //initializeCharts();
 
-      // Update time display every 60 seconds
-      ///updateTimeDisplay();
-      //setInterval(updateTimeDisplay, 60000);
     });
   </script>
 </body>
